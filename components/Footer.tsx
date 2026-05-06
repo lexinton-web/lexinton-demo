@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import { LinkedInIcon, InstagramIcon, FacebookIcon, YouTubeIcon } from '@/components/icons/social'
 
 const officeLinks = [
@@ -34,9 +35,14 @@ export default function Footer() {
 
           {/* Brand */}
           <div>
-            <Link href="/" className="flex flex-col leading-[1.1] mb-5">
-              <span className="text-[15px] font-bold tracking-[0.28em] text-white">LEXINTON</span>
-              <span className="text-[8px] tracking-[0.38em] font-semibold text-white/60">PROPIEDADES</span>
+            <Link href="/" className="inline-block mb-5">
+              <Image
+                src="/logos/lexinton-logo-blanco.svg"
+                alt="Lexinton Propiedades"
+                width={187}
+                height={40}
+                className="h-10 w-auto"
+              />
             </Link>
             <p className="text-[13px] text-white/65 leading-[1.8] mb-5 max-w-[220px]">
               20 años asesorando a familias en compra, venta y operaciones simultáneas en CABA y GBA.

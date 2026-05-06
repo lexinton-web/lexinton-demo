@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { LinkedInIcon, InstagramIcon, FacebookIcon, YouTubeIcon } from '@/components/icons/social'
 import { useEffect, useState } from 'react'
 import { usePathname } from 'next/navigation'
@@ -40,19 +41,15 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-5 sm:px-8 h-[68px] flex items-center justify-between gap-8">
 
         {/* Logo */}
-        <Link href="/" className="flex flex-col leading-[1.0] shrink-0">
-          <span className={cn(
-            'text-[13px] font-bold tracking-[0.28em] transition-colors duration-300',
-            dark ? 'text-lx-ink' : 'text-white',
-          )}>
-            LEXINTON
-          </span>
-          <span className={cn(
-            'text-[7.5px] tracking-[0.38em] font-semibold transition-colors duration-300',
-            dark ? 'text-lx-stone' : 'text-white/70',
-          )}>
-            PROPIEDADES
-          </span>
+        <Link href="/" className="shrink-0">
+          <Image
+            src={dark ? '/logos/lexinton-logo-original.svg' : '/logos/lexinton-logo-blanco.svg'}
+            alt="Lexinton Propiedades"
+            width={187}
+            height={40}
+            priority
+            className="h-10 w-auto"
+          />
         </Link>
 
         {/* Desktop nav */}
