@@ -79,6 +79,19 @@ export function DualCTA() {
             transition={{ duration: 0.6 }}
             className="group relative overflow-hidden rounded-3xl bg-[#C41230] h-[420px]"
           >
+            {/* Imagen de fondo */}
+            <div className="absolute inset-0 opacity-15
+              group-hover:opacity-20 transition-opacity duration-700">
+              <Image
+                src="/images/lifestyle/lifestyle-5.jpg"
+                alt=""
+                fill
+                className="object-cover"
+                sizes="(max-width: 768px) 100vw, 50vw"
+                quality={75}
+              />
+            </div>
+
             {/* Pattern decorativo */}
             <div className="absolute inset-0 opacity-10"
               style={{
@@ -86,7 +99,7 @@ export function DualCTA() {
                 backgroundSize: '24px 24px'
               }} />
 
-            <div className="relative h-full flex flex-col justify-end p-6 md:p-10">
+            <div className="relative z-10 h-full flex flex-col justify-end p-6 md:p-10">
               <Icon icon="solar:wallet-money-bold-duotone"
                 className="w-12 h-12 text-white mb-6 opacity-90" />
               <h3 className="text-3xl font-light text-white mb-3">

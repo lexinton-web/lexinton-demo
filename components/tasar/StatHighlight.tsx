@@ -1,15 +1,28 @@
 'use client'
 
+import Image from 'next/image'
 import { motion } from 'framer-motion'
 import { AnimatedCounter } from './AnimatedCounter'
 
 export function StatHighlight() {
   return (
     <section className="py-28 bg-[#f5f5f3] relative overflow-hidden">
+      {/* Imagen de fondo muy sutil */}
+      <div className="absolute inset-0">
+        <Image
+          src="/images/lifestyle/lifestyle-6.jpg"
+          alt=""
+          fill
+          className="object-cover opacity-[0.08]"
+          sizes="100vw"
+          quality={60}
+        />
+      </div>
+
       {/* Línea decorativa horizontal de fondo */}
       <div className="absolute top-1/2 left-0 right-0 h-px bg-[#C41230]/10" />
 
-      <div className="relative max-w-3xl mx-auto px-6 text-center">
+      <div className="relative z-10 max-w-3xl mx-auto px-6 text-center">
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           whileInView={{ opacity: 1, scale: 1 }}

@@ -122,9 +122,22 @@ export function TasacionCTA() {
         whileInView={{ opacity: 1, x: 0 }}
         viewport={{ once: true, margin: '-80px' }}
         transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-        className="bg-[#C41230] px-10 py-20 md:px-16 md:py-24
-          flex flex-col items-center justify-center gap-6 text-center"
+        className="relative bg-[#C41230] px-10 py-20 md:px-16 md:py-24
+          flex flex-col items-center justify-center gap-6 text-center overflow-hidden"
       >
+        {/* Imagen de fondo — más sutil que en la izquierda */}
+        <div className="absolute inset-0">
+          <Image
+            src="/images/lifestyle/lifestyle-4.jpg"
+            alt=""
+            fill
+            className="object-cover opacity-10"
+            sizes="50vw"
+            quality={75}
+          />
+        </div>
+
+        <div className="relative z-10 flex flex-col items-center gap-6 text-center">
         <div className="flex items-start leading-none">
           <span className="text-[100px] md:text-[140px] font-light text-white leading-none">
             <AnimatedCounter end={83} duration={3500} pauseDuration={5000} loop={true} />
@@ -147,6 +160,7 @@ export function TasacionCTA() {
           Quiero vender
           <Icon icon="solar:arrow-right-linear" className="w-4 h-4" />
         </Link>
+        </div>{/* end relative z-10 */}
       </motion.div>
 
     </section>
