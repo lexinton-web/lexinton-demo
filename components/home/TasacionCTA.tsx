@@ -1,5 +1,6 @@
 'use client'
 import Link from 'next/link'
+import Image from 'next/image'
 import { motion } from 'framer-motion'
 import { Icon } from '@iconify/react'
 import { AnimatedCounter } from '@/components/tasar/AnimatedCounter'
@@ -27,8 +28,21 @@ export function TasacionCTA() {
         whileInView={{ opacity: 1, x: 0 }}
         viewport={{ once: true, margin: '-80px' }}
         transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-        className="bg-[#0f1923] px-10 py-20 md:px-16 md:py-24 flex flex-col gap-8"
+        className="relative bg-[#0f1923] px-10 py-20 md:px-16 md:py-24 flex flex-col gap-8 overflow-hidden"
       >
+        {/* Imagen de fondo */}
+        <div className="absolute inset-0">
+          <Image
+            src="/images/lifestyle/lifestyle-1.jpg"
+            alt=""
+            fill
+            className="object-cover opacity-20"
+            sizes="50vw"
+            quality={75}
+          />
+        </div>
+
+        <div className="relative z-10 flex flex-col gap-8">
 <div className="flex flex-col gap-1">
           <p className="text-xs text-gray-400 uppercase tracking-[0.15em]">
             Vendé con éxito
@@ -99,6 +113,7 @@ export function TasacionCTA() {
           Quiero vender
           <Icon icon="solar:arrow-right-linear" className="w-4 h-4" />
         </Link>
+        </div>{/* end relative z-10 */}
       </motion.div>
 
       {/* DERECHA — fondo rojo */}

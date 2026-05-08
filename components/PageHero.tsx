@@ -12,15 +12,18 @@ interface PageHeroProps {
   description?: string
   /** Show /hero-poster.jpg parallax bg like TasarHero */
   withImage?: boolean
+  /** Custom background image path (overrides withImage) */
+  backgroundImage?: string
 }
 
-export default function PageHero({ label, title, titleEmphasis, description, withImage }: PageHeroProps) {
+export default function PageHero({ label, title, titleEmphasis, description, withImage, backgroundImage }: PageHeroProps) {
+  const bgSrc = backgroundImage || (withImage ? '/hero-poster.jpg' : null)
   return (
     <section className="bg-lx-ink text-white pt-[calc(68px+4rem)] pb-20 sm:pt-[calc(68px+6rem)] sm:pb-28 relative overflow-hidden">
       {/* Optional background image */}
-      {withImage && (
+      {bgSrc && (
         <div className="absolute inset-0 pointer-events-none">
-          <Image src="/hero-poster.jpg" fill alt="" className="object-cover opacity-20" priority />
+          <Image src={bgSrc} fill alt="" className="object-cover opacity-20" sizes="100vw" quality={75} priority />
         </div>
       )}
       {/* Dark gradient overlay */}

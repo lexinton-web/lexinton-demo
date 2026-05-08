@@ -38,6 +38,7 @@ export default function QuieroVenderPage() {
         title="Vendé con quienes"
         titleEmphasis="conocen tu barrio"
         description="Más de 20 años cerrando operaciones en Palermo, Belgrano y zona norte. Te acompañamos desde la tasación hasta la escritura."
+        backgroundImage="/images/lifestyle/lifestyle-2.jpg"
       />
 
       {/* ── PROCESO ──────────────────────────────────── */}
