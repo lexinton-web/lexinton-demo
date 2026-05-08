@@ -48,7 +48,9 @@ function normalizePhone(phone: string): string {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
-    const { nombre, email, telefono, mensaje, tipo, propiedad_id, extra } = body
+    console.log('[API /leads] recibido:', JSON.stringify(body))
+    const { nombre, email, telefono, mensaje, tipo, propiedad_id, extra,
+            operation, page_url, form_type } = body
 
     // Validación básica
     if (!nombre || !email) {
@@ -110,6 +112,10 @@ export async function POST(req: NextRequest) {
       mensaje: text,
       tipo: tipo ?? 'Contacto',
       propiedad_id: propiedad_id ? String(propiedad_id) : undefined,
+      operation: operation ? String(operation) : undefined,
+      page_url: page_url ? String(page_url) : undefined,
+      form_type: form_type ? String(form_type) : undefined,
+      raw_body: body,
     }).catch(err => {
       console.error('[API /leads] Supabase capture failed (non-blocking):', err)
     })
@@ -133,10 +139,17 @@ async function captureLeadInSupabase(data: {
   mensaje?: string
   tipo: string
   propiedad_id?: string
+  operation?: string
+  page_url?: string
+  form_type?: string
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  raw_body?: any
 }) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const supabase = createLeadsClient() as any
-  const { nombre, email, telefono, mensaje, tipo, propiedad_id } = data
+  const { nombre, email, telefono, mensaje, tipo, propiedad_id,
+          operation, page_url, form_type, raw_body } = data
+  // normalizePhone handles prefixed strings like "+54 1134567890" — strip non-digits first
   const phoneNormalized = telefono ? normalizePhone(telefono) : null
 
   // Dedup: mismo email + misma propiedad + últimos 30 minutos
@@ -216,10 +229,17 @@ async function captureLeadInSupabase(data: {
       contact_id: contact.id,
       property_id: propertyId,
       source: 'web_form',
+      operation: operation ?? null,
       message: mensaje ? mensaje.slice(0, 2000) : null,
       subject: tipo,
       raw_email_uid: 'web_' + Date.now(),
       received_at: new Date().toISOString(),
+      metadata: {
+        form_type: form_type ?? tipo,
+        page_url: page_url ?? null,
+        tokko_property_id: propiedad_id ?? null,
+        raw_form_data: raw_body ?? null,
+      },
     })
     .select('id')
     .single()

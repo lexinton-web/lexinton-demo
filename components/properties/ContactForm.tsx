@@ -61,6 +61,9 @@ export function ContactForm({ property, customTitle, customMessage, showProperty
           mensaje: mensajeFinal,
           tipo: tipoFinal,
           propiedad_id: property?.id ?? null,
+          form_type: property ? 'consulta_propiedad' : 'contacto',
+          operation: property?.operations?.[0]?.operation_type ?? null,
+          page_url: typeof window !== 'undefined' ? window.location.href : null,
         }),
       })
       setSent(true)
