@@ -104,21 +104,24 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    // ── 2. Capturar en Supabase (non-blocking) ───────────────────────────────
-    captureLeadInSupabase({
-      nombre: String(nombre).trim(),
-      email: String(email).trim().toLowerCase(),
-      telefono: telefono ? String(telefono).trim() : undefined,
-      mensaje: text,
-      tipo: tipo ?? 'Contacto',
-      propiedad_id: propiedad_id ? String(propiedad_id) : undefined,
-      operation: operation ? String(operation) : undefined,
-      page_url: page_url ? String(page_url) : undefined,
-      form_type: form_type ? String(form_type) : undefined,
-      raw_body: body,
-    }).catch(err => {
-      console.error('[API /leads] Supabase capture failed (non-blocking):', err)
-    })
+    // ── 2. Capturar en Supabase ─────────────────────────────────────────────
+    // IMPORTANT: must be awaited — Vercel kills the function after response returns
+    try {
+      await captureLeadInSupabase({
+        nombre: String(nombre).trim(),
+        email: String(email).trim().toLowerCase(),
+        telefono: telefono ? String(telefono).trim() : undefined,
+        mensaje: text,
+        tipo: tipo ?? 'Contacto',
+        propiedad_id: propiedad_id ? String(propiedad_id) : undefined,
+        operation: operation ? String(operation) : undefined,
+        page_url: page_url ? String(page_url) : undefined,
+        form_type: form_type ? String(form_type) : undefined,
+        raw_body: body,
+      })
+    } catch (err) {
+      console.error('[API /leads] Supabase capture failed:', err)
+    }
 
     return NextResponse.json({ success: true })
   } catch (error) {

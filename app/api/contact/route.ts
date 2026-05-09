@@ -49,16 +49,19 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    // Capturar en Supabase (non-blocking — no afecta al usuario si falla)
-    captureContactInSupabase({
-      name: String(name).trim(),
-      email: String(email).trim().toLowerCase(),
-      phone: phone ? String(phone).trim() : undefined,
-      message: String(message ?? '').trim(),
-      propertyId: String(propertyId),
-    }).catch(err => {
-      console.error('[API /contact] Supabase capture failed (non-blocking):', err)
-    })
+    // Capturar en Supabase — IMPORTANT: must be awaited before returning
+    // Vercel kills the function immediately after response is sent
+    try {
+      await captureContactInSupabase({
+        name: String(name).trim(),
+        email: String(email).trim().toLowerCase(),
+        phone: phone ? String(phone).trim() : undefined,
+        message: String(message ?? '').trim(),
+        propertyId: String(propertyId),
+      })
+    } catch (err) {
+      console.error('[API /contact] Supabase capture failed:', err)
+    }
 
     return NextResponse.json({ success: true })
   } catch (error) {
