@@ -2,19 +2,19 @@
 
 export default function MobileSticky() {
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-40 sm:hidden flex border-t border-white/10 bg-lx-ink/95 backdrop-blur-sm">
+    <div className="fixed bottom-0 left-0 right-0 z-40 sm:hidden flex border-t border-gray-200 bg-white/95 backdrop-blur-sm">
       <a
         href="https://wa.me/5491131519928"
         target="_blank"
         rel="noopener noreferrer"
-        className="flex-1 flex items-center justify-center gap-2.5 py-4 text-[11.5px] font-bold tracking-[0.12em] uppercase text-white border-r border-white/10 hover:bg-white/5 transition-colors duration-200"
+        className="flex-1 flex items-center justify-center gap-2.5 py-4 text-[11.5px] font-bold tracking-[0.12em] uppercase text-gray-800 border-r border-gray-200 hover:bg-gray-100 transition-colors duration-200"
       >
         <WhatsAppIcon />
         WhatsApp
       </a>
       <a
         href="/tasar"
-        className="flex-1 flex items-center justify-center gap-2 py-4 text-[11.5px] font-bold tracking-[0.12em] uppercase text-white hover:bg-white/5 transition-colors duration-200"
+        className="flex-1 flex items-center justify-center gap-2 py-4 text-[11.5px] font-bold tracking-[0.12em] uppercase text-gray-800 hover:bg-gray-100 transition-colors duration-200"
       >
         Tasar inmueble
       </a>

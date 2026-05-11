@@ -68,7 +68,7 @@ export function LeadForm({
     : 'text-lx-stone'
   const btn = dark
     ? 'bg-white text-lx-ink hover:bg-lx-cream'
-    : 'bg-lx-ink text-white hover:bg-lx-stone'
+    : 'bg-lx-ink text-white hover:bg-gray-800'
 
   function handleChange(
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>

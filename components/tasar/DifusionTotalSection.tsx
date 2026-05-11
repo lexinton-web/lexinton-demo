@@ -61,7 +61,7 @@ const logoVariants = {
 
 export default function DifusionTotalSection() {
   return (
-    <section className="py-24 bg-[#0f1923] text-white">
+    <section className="py-24 bg-[#f5f5f5]">
       <div className="max-w-6xl mx-auto px-6">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -73,12 +73,12 @@ export default function DifusionTotalSection() {
           <p className="text-xs text-[#C41230] uppercase tracking-[0.2em] font-medium mb-3">
             DIFUSIÓN TOTAL
           </p>
-          <h2 className="text-4xl md:text-5xl font-light text-white">
+          <h2 className="text-4xl md:text-5xl font-light text-gray-900">
             Publicamos donde vive
             <br />
             el comprador de tu barrio
           </h2>
-          <p className="text-base text-gray-400 leading-relaxed max-w-2xl mx-auto mt-6">
+          <p className="text-base text-gray-500 leading-relaxed max-w-2xl mx-auto mt-6">
             Cada propiedad de Lexinton se publica simultáneamente en los portales con mayor
             tráfico de Argentina y se activan campañas pagas segmentadas por zona.
           </p>
@@ -94,9 +94,8 @@ export default function DifusionTotalSection() {
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true, margin: '-60px' }}
-              className="group bg-white/5 border border-white/10 rounded-2xl p-6
-                hover:bg-white/10 hover:border-white/20 transition-all duration-300
-                backdrop-blur-sm"
+              className="group bg-white border border-gray-200 rounded-2xl p-6
+                hover:border-gray-300 hover:shadow-md transition-all duration-300"
             >
               <div className="flex items-start gap-4">
                 {/* Logo en contenedor blanco */}
@@ -105,8 +104,8 @@ export default function DifusionTotalSection() {
                   <Logo size={40} />
                 </div>
                 <div>
-                  <h3 className="text-white font-medium mb-1">{name}</h3>
-                  <p className="text-sm text-gray-400 leading-relaxed">{copy}</p>
+                  <h3 className="text-gray-900 font-medium mb-1">{name}</h3>
+                  <p className="text-sm text-gray-500 leading-relaxed">{copy}</p>
                 </div>
               </div>
             </motion.div>

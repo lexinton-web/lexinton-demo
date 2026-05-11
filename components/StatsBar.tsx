@@ -14,7 +14,7 @@ const items = [
 
 export default function CredibilityBar() {
   return (
-    <section className="bg-lx-ink">
+    <section className="bg-[#f5f5f5] border-y border-gray-200">
       <div className="max-w-7xl mx-auto px-5 sm:px-8 py-10 sm:py-12">
         <div className="grid grid-cols-2 lg:grid-cols-4 divide-x divide-white/10">
           {items.map((item, i) => (
@@ -27,18 +27,18 @@ export default function CredibilityBar() {
               className="px-6 sm:px-10 py-2 text-center first:pl-0 last:pr-0"
             >
               {item.numeric ? (
-                <span className="block font-serif text-[clamp(2rem,4vw,3rem)] font-normal text-white leading-none mb-2">
+                <span className="block font-serif text-[clamp(2rem,4vw,3rem)] font-normal text-gray-900 leading-none mb-2">
                   {item.end === 5000
                     ? <><span className="text-[0.6em] mr-0.5 align-middle">+</span><AnimatedCounter end={5000} /></>
                     : <AnimatedCounter end={item.end!} />
                   }
                 </span>
               ) : (
-                <span className="block font-serif text-[clamp(1rem,2vw,1.4rem)] font-normal text-white leading-tight mb-2 whitespace-pre-line italic">
+                <span className="block font-serif text-[clamp(1rem,2vw,1.4rem)] font-normal text-gray-900 leading-tight mb-2 whitespace-pre-line italic">
                   {item.label.split('\n')[0]}
                 </span>
               )}
-              <span className="block text-[10px] sm:text-[11px] tracking-[0.18em] uppercase text-white/45 font-medium leading-snug">
+              <span className="block text-[10px] sm:text-[11px] tracking-[0.18em] uppercase text-gray-500 font-medium leading-snug">
                 {item.numeric ? item.label : item.label.split('\n')[1] ?? ''}
               </span>
             </motion.div>

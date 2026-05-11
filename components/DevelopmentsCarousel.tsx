@@ -72,7 +72,7 @@ export function DevelopmentsCarousel({ developments }: Props) {
 
   return (
     <section
-      className="relative bg-gray-950 py-20 overflow-hidden"
+      className="relative bg-[#111] py-20 overflow-hidden"
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
     >

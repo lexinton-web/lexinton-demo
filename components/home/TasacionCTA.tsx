@@ -28,7 +28,7 @@ export function TasacionCTA() {
         whileInView={{ opacity: 1, x: 0 }}
         viewport={{ once: true, margin: '-80px' }}
         transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-        className="relative bg-[#0f1923] px-10 py-20 md:px-16 md:py-24 flex flex-col gap-8 overflow-hidden"
+        className="relative bg-[#f5f5f5] px-10 py-20 md:px-16 md:py-24 flex flex-col gap-8 overflow-hidden"
       >
         {/* Imagen de fondo */}
         <div className="absolute inset-0">
@@ -36,8 +36,7 @@ export function TasacionCTA() {
             src="/images/lifestyle/lifestyle-1.jpg"
             alt=""
             fill
-            className="object-cover opacity-20"
-            sizes="50vw"
+            className="object-cover opacity-30"
             quality={75}
           />
         </div>
@@ -52,12 +51,12 @@ export function TasacionCTA() {
           </p>
         </div>
 
-        <h2 className="text-4xl md:text-5xl font-light text-white leading-tight">
+        <h2 className="text-4xl md:text-5xl font-light text-gray-900 leading-tight">
           La venta de tu propiedad<br />
-          <em className="not-italic font-normal text-gray-300">empieza acá.</em>
+          <em className="not-italic font-normal text-gray-600">empieza acá.</em>
         </h2>
 
-        <p className="text-gray-400 leading-relaxed">
+        <p className="text-gray-600 leading-relaxed">
           Vender bien no es cuestión de suerte. Es estrategia, exposición
           y llegar al comprador correcto en el momento justo.
         </p>
@@ -76,7 +75,7 @@ export function TasacionCTA() {
                 initial: { opacity: 0, y: 10 },
                 animate: { opacity: 1, y: 0, transition: { duration: 0.4 } }
               }}
-              className="flex items-start gap-3 text-gray-300 text-sm"
+              className="flex items-start gap-3 text-gray-700 text-sm"
             >
               <Icon
                 icon="solar:check-circle-bold"
@@ -106,9 +105,9 @@ export function TasacionCTA() {
 
         <Link
           href="/tasar"
-          className="inline-flex items-center gap-2 border border-white/30
-            text-white text-sm font-medium px-6 py-3 rounded-full w-fit
-            hover:bg-white hover:text-[#0f1923] transition-colors duration-200"
+          className="inline-flex items-center gap-2 border border-gray-800
+            text-gray-900 text-sm font-medium px-6 py-3 rounded-full w-fit
+            hover:bg-gray-900 hover:text-white transition-colors duration-200"
         >
           Quiero vender
           <Icon icon="solar:arrow-right-linear" className="w-4 h-4" />

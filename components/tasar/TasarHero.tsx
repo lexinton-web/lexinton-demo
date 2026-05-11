@@ -37,7 +37,7 @@ export default function TasarHero() {
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, ease: EASE }}
-          className="text-[10.5px] font-bold tracking-[0.22em] uppercase text-lx-accent/80 mb-5"
+          className="text-[10.5px] font-bold tracking-[0.22em] uppercase text-[#C41230] mb-5"
         >
           Lexinton Propiedades · Tasaciones
         </motion.p>

@@ -23,6 +23,13 @@ const config: Config = {
         'lx-parchment': '#f5f5f5',
         'lx-accent': '#3d5a6c',   // blue-grey petróleo
         'lx-line':   '#e5e5e5',
+        // Light-mode surface tokens (Samsung-inspired)
+        'lx-surface':   '#ffffff',
+        'lx-surface-2': '#f5f5f5',
+        'lx-surface-3': '#ebebeb',
+        'lx-text':      '#111111',
+        'lx-text-2':    '#555555',
+        'lx-text-3':    '#666666',
       },
       fontFamily: {
         sans:  ['var(--font-inter)',   'system-ui', 'sans-serif'],
