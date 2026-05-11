@@ -52,6 +52,7 @@ export default function InversorPage() {
         title="Tu capital, protegido"
         titleEmphasis="en ladrillos"
         description="El mercado inmobiliario porteño es históricamente uno de los más estables de Argentina. Te ayudamos a invertir con criterio y rentabilidad real."
+        withImage
       />
 
       {/* ── POR QUÉ INVERTIR HOY ─────────────────────── */}

@@ -12,6 +12,7 @@ const navLinks = [
   { label: 'Propiedades', href: '/propiedades', icon: 'solar:home-2-linear' },
   { label: 'Emprendimientos', href: '/emprendimientos', icon: 'solar:buildings-2-linear' },
   { label: 'Inversores', href: '/inversor', icon: 'solar:chart-square-linear' },
+  { label: 'Quiero vender', href: '/quiero-vender', icon: 'solar:tag-price-bold' },
   { label: 'Contacto', href: '/contacto', icon: 'solar:phone-linear' },
 ]
 

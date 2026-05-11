@@ -34,6 +34,11 @@ export const metadata: Metadata = {
     'Lexinton Propiedades',
   ].join(', '),
   authors: [{ name: 'Lexinton Propiedades' }],
+  icons: {
+    icon: '/favicon.svg',
+    shortcut: '/favicon.svg',
+    apple: '/favicon.svg',
+  },
   openGraph: {
     title: 'Lexinton Propiedades — Especialistas en operaciones inmobiliarias',
     description:
