@@ -87,21 +87,43 @@ export async function POST(req: NextRequest) {
       tokkoBody.property = Number(propiedad_id)
     }
 
-    const tokkoRes = await fetch(
-      `https://www.tokkobroker.com/api/v1/webcontact/?key=${TOKKO_API_KEY}&format=json`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(tokkoBody),
-      }
-    )
-
-    if (!tokkoRes.ok) {
-      console.error('[API /leads] Tokko error:', tokkoRes.status, await tokkoRes.text().catch(() => ''))
-      return NextResponse.json(
-        { error: 'No se pudo enviar. Intentá nuevamente.' },
-        { status: 500 }
+    let tokkoOk = false
+    try {
+      const tokkoRes = await fetch(
+        `https://www.tokkobroker.com/api/v1/webcontact/?key=${TOKKO_API_KEY}&format=json`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(tokkoBody),
+        }
       )
+      if (!tokkoRes.ok) {
+        console.error('[API /leads] Tokko error:', tokkoRes.status, await tokkoRes.text().catch(() => ''))
+      } else {
+        tokkoOk = true
+        console.log('[API /leads] ✅ Tokko webcontact OK')
+      }
+    } catch (tokkoErr) {
+      console.error('[API /leads] Tokko fetch failed:', tokkoErr)
+    }
+
+    // Normalize operation_type to canonical form
+    const OP_MAP: Record<string, string> = {
+      'Venta': 'sale', 'Sale': 'sale',
+      'Alquiler': 'rent', 'Rent': 'rent',
+      'Alquiler temporal': 'temporary_rent', 'Alquiler Temporal': 'temporary_rent',
+      'Temporary rent': 'temporary_rent', 'Temporary Rent': 'temporary_rent',
+    }
+    let operationNorm: string | null = operation ? (OP_MAP[String(operation)] ?? String(operation).toLowerCase()) : null
+    if (!operationNorm) {
+      const tipoLower = (tipo ?? '').toLowerCase()
+      if (tipoLower.includes('tasar') || tipoLower.includes('tasación')) operationNorm = 'appraisal'
+      else if (tipoLower.includes('vender') || tipoLower.includes('quiero vender')) operationNorm = 'sell_request'
+      else if (tipoLower.includes('emprendimiento')) operationNorm = 'development'
+      else if (tipoLower.includes('inversor')) operationNorm = 'investment'
+      else if (tipoLower.includes('alquiler temporal')) operationNorm = 'temporary_rent'
+      else if (tipoLower.includes('alquiler')) operationNorm = 'rent'
+      else if (tipoLower.includes('consulta') || tipoLower.includes('propiedad')) operationNorm = 'sale'
     }
 
     // ── 2. Capturar en Supabase ─────────────────────────────────────────────
@@ -114,7 +136,7 @@ export async function POST(req: NextRequest) {
         mensaje: text,
         tipo: tipo ?? 'Contacto',
         propiedad_id: propiedad_id ? String(propiedad_id) : undefined,
-        operation: operation ? String(operation) : undefined,
+        operation: operationNorm ?? undefined,
         page_url: page_url ? String(page_url) : undefined,
         form_type: form_type ? String(form_type) : undefined,
         raw_body: body,
@@ -123,7 +145,7 @@ export async function POST(req: NextRequest) {
       console.error('[API /leads] Supabase capture failed:', err)
     }
 
-    return NextResponse.json({ success: true })
+    return NextResponse.json({ success: true, tokko: tokkoOk })
   } catch (error) {
     console.error('[API /leads] Error:', error)
     return NextResponse.json(

@@ -97,6 +97,8 @@ export function LeadForm({
           mensaje: form.mensaje,
           tipo: showTipoSelector ? form.tipoConsulta : tipo,
           extra: extraParts.join(' | ') || undefined,
+          form_type: tipo.toLowerCase().replace(/\s+/g, '_'),
+          page_url: typeof window !== 'undefined' ? window.location.href : null,
         }),
       })
 
