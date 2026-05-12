@@ -212,16 +212,39 @@ async function captureLeadInSupabase(data: {
     throw new Error(`Contact upsert failed: ${contactError.message}`)
   }
 
-  // Find property in Supabase by tokko_id
+  // Find property in Supabase by tokko_id; fallback to Tokko API for address
   let propertyId: string | null = null
+  let agentRaw: string | null = null
+  let propertyAddress: string | null = null
+
   if (propiedad_id) {
     const { data: prop } = await supabase
       .from('properties')
-      .select('id')
+      .select('id, agent_raw, canonical_name')
       .eq('org_id', ORG_ID)
       .eq('tokko_id', propiedad_id)
       .single()
-    propertyId = prop?.id ?? null
+
+    if (prop) {
+      propertyId = prop.id ?? null
+      agentRaw = prop.agent_raw ?? null
+      propertyAddress = prop.canonical_name ?? null
+    } else {
+      // Property not yet synced to Supabase — fetch address from Tokko
+      try {
+        const tokkoKey = process.env.TOKKO_API_KEY
+        const propRes = await fetch(
+          `https://www.tokkobroker.com/api/v1/property/${propiedad_id}/?key=${tokkoKey}&format=json&lang=es`,
+          { next: { revalidate: 0 } }
+        )
+        if (propRes.ok) {
+          const propData = await propRes.json()
+          propertyAddress = propData?.address ?? propData?.fake_address ?? null
+        }
+      } catch (e) {
+        console.warn('[Supabase leads] Tokko property fetch failed:', e)
+      }
+    }
   }
 
   // Insert lead
@@ -241,6 +264,8 @@ async function captureLeadInSupabase(data: {
         form_type: form_type ?? tipo,
         page_url: page_url ?? null,
         tokko_property_id: propiedad_id ?? null,
+        property_address: propertyAddress ?? null,
+        agent_raw: agentRaw ?? null,
         raw_form_data: raw_body ?? null,
       },
     })
@@ -259,6 +284,40 @@ async function captureLeadInSupabase(data: {
       state: 'NUEVO',
       note: `Lead recibido vía formulario web — ${tipo}`,
     })
+
+  // Agent assignment — match agent_raw against profiles (first name, case-insensitive)
+  if (agentRaw) {
+    try {
+      const agentFirstName = agentRaw.trim().split(/\s+/)[0].toLowerCase()
+      const { data: profiles } = await supabase
+        .from('profiles')
+        .select('id, full_name')
+        .eq('org_id', ORG_ID)
+
+      const matchedProfile = profiles?.find((p: { id: string; full_name: string }) =>
+        p.full_name.toLowerCase().includes(agentFirstName)
+      )
+
+      if (matchedProfile) {
+        const { error: assignError } = await supabase
+          .from('lead_assignments')
+          .insert({
+            lead_id: lead.id,
+            agent_id: matchedProfile.id,
+            assigned_at: new Date().toISOString(),
+          })
+        if (assignError) {
+          console.warn('[Supabase leads] Assignment insert failed:', assignError.message)
+        } else {
+          console.log(`[Supabase leads] Assigned to ${matchedProfile.full_name}`)
+        }
+      } else {
+        console.log(`[Supabase leads] No profile match for agent_raw="${agentRaw}" — assignment skipped`)
+      }
+    } catch (e) {
+      console.warn('[Supabase leads] Agent assignment failed:', e)
+    }
+  }
 
   console.log('[Supabase leads] Lead captured:', lead.id)
   return { success: true, lead_id: lead.id }
