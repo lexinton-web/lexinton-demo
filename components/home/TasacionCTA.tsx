@@ -121,20 +121,23 @@ export function TasacionCTA() {
         whileInView={{ opacity: 1, x: 0 }}
         viewport={{ once: true, margin: '-80px' }}
         transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-        className="relative bg-[#C41230] px-10 py-20 md:px-16 md:py-24
+        className="relative bg-[#111] px-10 py-20 md:px-16 md:py-24
           flex flex-col items-center justify-center gap-6 text-center overflow-hidden"
       >
-        {/* Imagen de fondo — más sutil que en la izquierda */}
+        {/* Imagen full color */}
         <div className="absolute inset-0">
           <Image
             src="/images/lifestyle/lifestyle-4.jpg"
             alt=""
             fill
-            className="object-cover opacity-25"
+            className="object-cover"
             sizes="50vw"
-            quality={75}
+            quality={85}
           />
         </div>
+
+        {/* Overlay oscuro para legibilidad */}
+        <div className="absolute inset-0 bg-black/50" />
 
         <div className="relative z-10 flex flex-col items-center gap-6 text-center">
         <div className="flex items-start leading-none">

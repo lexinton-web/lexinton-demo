@@ -77,27 +77,22 @@ export function DualCTA() {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
-            className="group relative overflow-hidden rounded-3xl bg-[#C41230] h-[420px]"
+            className="group relative overflow-hidden rounded-3xl bg-[#111] h-[420px]"
           >
-            {/* Imagen de fondo */}
-            <div className="absolute inset-0 opacity-15
-              group-hover:opacity-20 transition-opacity duration-700">
+            {/* Imagen full color */}
+            <div className="absolute inset-0 group-hover:scale-105 transition-transform duration-700">
               <Image
                 src="/images/lifestyle/lifestyle-5.jpg"
                 alt=""
                 fill
                 className="object-cover"
                 sizes="(max-width: 768px) 100vw, 50vw"
-                quality={75}
+                quality={85}
               />
             </div>
 
-            {/* Pattern decorativo */}
-            <div className="absolute inset-0 opacity-10"
-              style={{
-                backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)',
-                backgroundSize: '24px 24px'
-              }} />
+            {/* Overlay oscuro para legibilidad */}
+            <div className="absolute inset-0 bg-black/45" />
 
             <div className="relative z-10 h-full flex flex-col justify-end p-6 md:p-10">
               <Icon icon="solar:wallet-money-bold-duotone"
@@ -110,9 +105,9 @@ export function DualCTA() {
                 Tasación con un corredor de tu barrio. Respuesta en menos de 24 horas.
               </p>
               <Link href="/tasar"
-                className="inline-flex items-center gap-2 bg-white text-[#C41230]
+                className="inline-flex items-center gap-2 bg-white text-gray-900
                   px-6 py-3 rounded-full text-sm font-medium w-fit
-                  hover:bg-gray-900 hover:text-white transition-colors duration-300">
+                  hover:bg-[#C41230] hover:text-white transition-colors duration-300">
                 Tasar mi inmueble
                 <Icon icon="solar:arrow-right-linear" className="w-4 h-4" />
               </Link>
