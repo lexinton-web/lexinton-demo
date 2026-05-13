@@ -1,50 +1,20 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
 import Image from 'next/image'
 import { motion } from 'framer-motion'
 import { HomeSearchBar } from '@/components/search/HomeSearchBar'
 
 const ease = [0.22, 1, 0.36, 1] as const
-const VIDEO_SRC = 'https://videos.pexels.com/video-files/32551249/13881455_1920_1080_24fps.mp4'
-
-type RIC = (cb: () => void, opts?: { timeout: number }) => void
 
 export default function HeroSection() {
-  const videoRef = useRef<HTMLVideoElement>(null)
-  const [videoLoaded, setVideoLoaded] = useState(false)
-
-  useEffect(() => {
-    const loadVideo = () => {
-      const video = videoRef.current
-      if (!video) return
-      // Assign src dynamically — browser won't start downloading until here
-      video.src = VIDEO_SRC
-      video.load()
-      video.play().catch(() => {})
-    }
-
-    // Wait until browser is idle so LCP image renders first
-    const ric = (window as unknown as { requestIdleCallback?: RIC }).requestIdleCallback
-    if (ric) {
-      ric(loadVideo, { timeout: 2000 })
-    } else {
-      setTimeout(loadVideo, 1500)
-    }
-  }, [])
-
   return (
     <section className="relative h-[100svh] min-h-[680px] flex flex-col overflow-x-hidden">
 
-      {/* POSTER — LCP target, preloaded by next/image with priority */}
-      <div
-        className={`absolute inset-0 transition-opacity duration-1000 ${
-          videoLoaded ? 'opacity-0' : 'opacity-100'
-        }`}
-      >
+      {/* IMAGEN ESTÁTICA — LCP target, priority */}
+      <div className="absolute inset-0">
         <Image
-          src="/hero-poster.jpg"
-          alt="Vista aérea de Buenos Aires"
+          src="/palermo1.jpg"
+          alt="Palermo, Buenos Aires"
           fill
           priority
           quality={85}
@@ -53,21 +23,8 @@ export default function HeroSection() {
         />
       </div>
 
-      {/* VIDEO — no src in HTML, assigned lazily; fades in on canplay */}
-      <video
-        ref={videoRef}
-        autoPlay
-        muted
-        loop
-        playsInline
-        onCanPlay={() => setVideoLoaded(true)}
-        className={`absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-1000 ${
-          videoLoaded ? 'opacity-100' : 'opacity-0'
-        }`}
-      />
-
       {/* Overlay */}
-      <div className="absolute inset-0" style={{ background: 'var(--lx-hero-overlay)' }} />
+      <div className="absolute inset-0 bg-black/45" />
       <div className="absolute bottom-0 left-0 right-0 h-64 bg-gradient-to-t from-black/40 to-transparent" />
 
       {/* Content */}

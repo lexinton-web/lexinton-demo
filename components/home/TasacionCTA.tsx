@@ -140,28 +140,31 @@ export function TasacionCTA() {
         {/* Overlay sutil solo arriba para legibilidad del texto */}
         <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/20 to-transparent" />
 
-        {/* Contenido — compacto, arriba */}
-        <div className="relative z-10">
-          <div className="flex items-start leading-none">
-            <span className="text-[64px] md:text-[80px] font-light text-white leading-none">
-              <AnimatedCounter end={83} duration={3500} pauseDuration={5000} loop={true} />
-            </span>
-            <span className="text-3xl text-white/70 mt-2">%</span>
-          </div>
+        {/* Contenido — justify-between para botón abajo */}
+        <div className="relative z-10 flex flex-col justify-between h-full">
+          <div>
+            <div className="flex items-start leading-none">
+              <span className="text-[64px] md:text-[80px] font-light text-white leading-none">
+                <AnimatedCounter end={83} duration={3500} pauseDuration={5000} loop={true} />
+              </span>
+              <span className="text-3xl text-white/70 mt-2">%</span>
+            </div>
 
-          <p className="text-sm text-white/85 leading-snug mt-2 max-w-[200px]">
-            de los propietarios que vendieron con Lexinton
-            volvieron a elegirnos.
-          </p>
+            <p className="text-sm text-white/85 leading-snug mt-2 max-w-[200px]">
+              de los propietarios que vendieron con Lexinton
+              volvieron a elegirnos.
+            </p>
+          </div>
 
           <Link
             href="/tasar"
-            className="inline-flex items-center gap-2 mt-4
-              bg-white text-gray-900 px-5 py-2.5 rounded-full
-              text-xs font-semibold hover:bg-gray-100 transition-colors"
+            className="inline-flex items-center gap-2 w-fit
+              border border-white/30 text-white
+              px-6 py-3 rounded-full text-sm font-medium
+              hover:bg-white hover:text-[#0f1923] transition-colors duration-200"
           >
             Quiero vender
-            <Icon icon="solar:arrow-right-linear" className="w-3.5 h-3.5" />
+            <Icon icon="solar:arrow-right-linear" className="w-4 h-4" />
           </Link>
         </div>
       </motion.div>

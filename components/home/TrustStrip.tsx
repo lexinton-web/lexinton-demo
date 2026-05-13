@@ -1,4 +1,5 @@
 'use client'
+import Image from 'next/image'
 import { motion } from 'framer-motion'
 import { Icon } from '@iconify/react'
 
@@ -24,14 +25,14 @@ export function TrustStrip() {
 
         {/* Grid de logos de portales y plataformas */}
         <div className="grid grid-cols-3 md:grid-cols-6 gap-8 items-center">
-          {[
-            { name: 'Zonaprop', color: '#FF6600' },
-            { name: 'Argenprop', color: '#00A651' },
+          {([
+            { name: 'Zonaprop', logo: '/logos/zonaprop.png', w: 120, h: 34 },
+            { name: 'Argenprop', logo: '/logos/argenprop.png', w: 120, h: 34 },
             { name: 'Google Ads', icon: 'logos:google' },
             { name: 'Meta', icon: 'logos:meta-icon' },
             { name: 'Instagram', icon: 'skill-icons:instagram' },
-            { name: 'Tokko Broker', color: '#111' },
-          ].map((partner, i) => (
+            { name: 'Tokko Broker', logo: '/logos/Tokko.svg', w: 100, h: 34 },
+          ] as Array<{ name: string; logo?: string; w?: number; h?: number; icon?: string }>).map((partner, i) => (
             <motion.div
               key={partner.name}
               initial={{ opacity: 0, y: 10 }}
@@ -40,12 +41,16 @@ export function TrustStrip() {
               transition={{ delay: i * 0.08, duration: 0.4 }}
               className="flex items-center justify-center h-16"
             >
-              {partner.icon ? (
-                <Icon icon={partner.icon} className="w-10 h-10" />
+              {partner.logo ? (
+                <Image
+                  src={partner.logo}
+                  alt={partner.name}
+                  width={partner.w!}
+                  height={partner.h!}
+                  className="object-contain max-h-9"
+                />
               ) : (
-                <span className="text-lg font-semibold" style={{ color: partner.color }}>
-                  {partner.name}
-                </span>
+                <Icon icon={partner.icon!} className="w-10 h-10" />
               )}
             </motion.div>
           ))}
