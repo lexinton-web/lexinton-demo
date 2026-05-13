@@ -72,7 +72,7 @@ export function DevelopmentsCarousel({ developments }: Props) {
 
   return (
     <section
-      className="relative bg-[#111] py-20 overflow-hidden"
+      className="relative bg-[#f5f5f5] py-20 overflow-hidden"
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
     >
@@ -97,13 +97,13 @@ export function DevelopmentsCarousel({ developments }: Props) {
             <p className="text-[#C41230] text-xs uppercase tracking-[0.2em] mb-3">
               Emprendimientos
             </p>
-            <h2 className="text-4xl font-light text-white">
+            <h2 className="text-4xl font-light text-gray-900">
               Proyectos seleccionados
             </h2>
           </div>
           <Link
             href="/emprendimientos"
-            className="text-sm text-gray-400 hover:text-white transition-colors underline underline-offset-4 hidden md:block"
+            className="text-sm text-gray-500 hover:text-gray-900 transition-colors underline underline-offset-4 hidden md:block"
           >
             Ver todos →
           </Link>
@@ -164,7 +164,7 @@ export function DevelopmentsCarousel({ developments }: Props) {
           {/* Arrow left */}
           <button
             onClick={prev}
-            className="absolute left-[30%] md:left-[31%] z-20 w-11 h-11 rounded-full bg-white/10 border border-white/25 text-white text-xl flex items-center justify-center hover:bg-white/25 transition-all duration-200 backdrop-blur-sm"
+            className="absolute left-[30%] md:left-[31%] z-20 w-11 h-11 rounded-full bg-white border border-gray-300 text-gray-700 text-xl flex items-center justify-center hover:bg-gray-50 transition-all duration-200 shadow-sm"
             aria-label="Anterior"
           >
             ‹
@@ -173,7 +173,7 @@ export function DevelopmentsCarousel({ developments }: Props) {
           {/* Arrow right */}
           <button
             onClick={next}
-            className="absolute right-[30%] md:right-[31%] z-20 w-11 h-11 rounded-full bg-white/10 border border-white/25 text-white text-xl flex items-center justify-center hover:bg-white/25 transition-all duration-200 backdrop-blur-sm"
+            className="absolute right-[30%] md:right-[31%] z-20 w-11 h-11 rounded-full bg-white border border-gray-300 text-gray-700 text-xl flex items-center justify-center hover:bg-gray-50 transition-all duration-200 shadow-sm"
             aria-label="Siguiente"
           >
             ›
@@ -199,7 +199,7 @@ export function DevelopmentsCarousel({ developments }: Props) {
         </div>
 
         {/* Counter */}
-        <p className="text-center text-gray-500 text-xs mt-4">
+        <p className="text-center text-gray-600 text-xs mt-4">
           {current + 1} / {total}
         </p>
 

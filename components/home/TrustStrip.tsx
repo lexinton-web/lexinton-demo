@@ -38,8 +38,7 @@ export function TrustStrip() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.08, duration: 0.4 }}
-              className="flex items-center justify-center h-16 grayscale
-                opacity-60 hover:opacity-100 hover:grayscale-0 transition-all duration-300"
+              className="flex items-center justify-center h-16"
             >
               {partner.icon ? (
                 <Icon icon={partner.icon} className="w-10 h-10" />

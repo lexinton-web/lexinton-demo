@@ -121,48 +121,49 @@ export function TasacionCTA() {
         whileInView={{ opacity: 1, x: 0 }}
         viewport={{ once: true, margin: '-80px' }}
         transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-        className="relative bg-[#111] px-10 py-20 md:px-16 md:py-24
-          flex flex-col items-center justify-center gap-6 text-center overflow-hidden"
+        className="relative overflow-hidden
+          px-8 py-10 md:px-12 md:py-12
+          flex flex-col justify-start"
       >
-        {/* Imagen full color */}
+        {/* Imagen full color — protagonista */}
         <div className="absolute inset-0">
           <Image
             src="/images/lifestyle/lifestyle-4.jpg"
             alt=""
             fill
-            className="object-cover"
+            className="object-cover object-center"
             sizes="50vw"
             quality={85}
           />
         </div>
 
-        {/* Overlay oscuro para legibilidad */}
-        <div className="absolute inset-0 bg-black/50" />
+        {/* Overlay sutil solo arriba para legibilidad del texto */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/20 to-transparent" />
 
-        <div className="relative z-10 flex flex-col items-center gap-6 text-center">
-        <div className="flex items-start leading-none">
-          <span className="text-[100px] md:text-[140px] font-light text-white leading-none">
-            <AnimatedCounter end={83} duration={3500} pauseDuration={5000} loop={true} />
-          </span>
-          <span className="text-5xl text-white/70 mt-6">%</span>
+        {/* Contenido — compacto, arriba */}
+        <div className="relative z-10">
+          <div className="flex items-start leading-none">
+            <span className="text-[64px] md:text-[80px] font-light text-white leading-none">
+              <AnimatedCounter end={83} duration={3500} pauseDuration={5000} loop={true} />
+            </span>
+            <span className="text-3xl text-white/70 mt-2">%</span>
+          </div>
+
+          <p className="text-sm text-white/85 leading-snug mt-2 max-w-[200px]">
+            de los propietarios que vendieron con Lexinton
+            volvieron a elegirnos.
+          </p>
+
+          <Link
+            href="/tasar"
+            className="inline-flex items-center gap-2 mt-4
+              bg-white text-gray-900 px-5 py-2.5 rounded-full
+              text-xs font-semibold hover:bg-gray-100 transition-colors"
+          >
+            Quiero vender
+            <Icon icon="solar:arrow-right-linear" className="w-3.5 h-3.5" />
+          </Link>
         </div>
-
-        <p className="text-white/80 text-base leading-relaxed max-w-xs">
-          de los propietarios que vendieron con Lexinton
-          volvieron a elegirnos.
-        </p>
-
-        <Link
-          href="/tasar"
-          className="mt-2 inline-flex items-center gap-2
-            bg-white text-[#C41230] font-semibold text-sm
-            px-8 py-4 rounded-full
-            hover:bg-gray-100 transition-colors duration-200"
-        >
-          Quiero vender
-          <Icon icon="solar:arrow-right-linear" className="w-4 h-4" />
-        </Link>
-        </div>{/* end relative z-10 */}
       </motion.div>
 
     </section>
