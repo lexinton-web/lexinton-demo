@@ -57,6 +57,17 @@ export default function RootLayout({
 }) {
   return (
     <html lang="es" className={`${inter.variable} ${instrumentSerif.variable}`}>
+      <head>
+        {/* DNS / TCP preconnect para recursos críticos externos */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link rel="preconnect" href="https://www.googletagmanager.com" />
+        <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
+        <link rel="preconnect" href="https://static.tokkobroker.com" />
+        <link rel="dns-prefetch" href="https://static.tokkobroker.com" />
+        <link rel="preconnect" href="https://s.cliengo.com" />
+        <link rel="dns-prefetch" href="https://s.cliengo.com" />
+      </head>
       <body className="font-sans antialiased bg-lx-cream text-lx-ink">
         <Navbar />
         {children}
