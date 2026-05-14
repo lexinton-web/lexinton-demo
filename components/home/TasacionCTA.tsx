@@ -36,10 +36,13 @@ export function TasacionCTA() {
             src="/images/lifestyle/lifestyle-1.jpg"
             alt=""
             fill
-            className="object-cover opacity-20"
+            className="object-cover opacity-100"
             sizes="50vw"
           />
         </div>
+
+        {/* Overlay oscuro para legibilidad del texto */}
+        <div className="absolute inset-0 bg-[#0f1923]/60" />
 
         <div className="relative z-10 flex flex-col gap-8">
 <div className="flex flex-col gap-1">

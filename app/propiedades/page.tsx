@@ -11,6 +11,7 @@
 
 import { Suspense } from 'react'
 import type { Metadata } from 'next'
+import PageHero from '@/components/PageHero'
 import PropertyCard, { PropertyCardSkeleton } from '@/components/PropertyCard'
 import PropertySearch from '@/components/properties/PropertySearch'
 import { PropertyListingClient } from '@/components/properties/PropertyListingClient'
@@ -224,17 +225,12 @@ export default function PropiedadesPage({ searchParams }: PageProps) {
   return (
     <main className="min-h-screen bg-lx-parchment">
 
-      {/* Hero header — estático, siempre visible */}
-      <div className="bg-[#f5f5f5] border-b border-gray-200 pt-[calc(68px+3.5rem)] pb-12 sm:pt-[calc(68px+4.5rem)] sm:pb-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-8">
-          <p className="text-[10.5px] font-bold tracking-[0.22em] uppercase text-[#C41230] mb-3">
-            Lexinton Propiedades
-          </p>
-          <h1 className="font-serif text-[clamp(1.9rem,4vw,3rem)] font-normal text-gray-900 leading-[1.1] tracking-[-0.01em]">
-            {opTitle}
-          </h1>
-        </div>
-      </div>
+      {/* Hero header con imagen */}
+      <PageHero
+        label="Lexinton Propiedades · Búsqueda"
+        title={opTitle}
+        backgroundImage="/palermo1.jpg"
+      />
 
       {/* Buscador + listado — un único Suspense para compartir datos */}
       <Suspense fallback={<PageSkeleton />}>

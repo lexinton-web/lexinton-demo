@@ -19,8 +19,8 @@ export function StatHighlight() {
         />
       </div>
 
-      {/* Overlay sutil para legibilidad del texto */}
-      <div className="absolute inset-0 bg-white/40" />
+      {/* Overlay para legibilidad del texto */}
+      <div className="absolute inset-0 bg-white/55" />
 
       {/* Línea decorativa horizontal de fondo */}
       <div className="absolute top-1/2 left-0 right-0 h-px bg-[#C41230]/10" />
@@ -39,20 +39,20 @@ export function StatHighlight() {
 
           {/* Número enorme */}
           <div className="relative inline-block">
-            <span className="text-[140px] md:text-[200px] font-light text-[#C41230] leading-none tracking-tighter">
+            <span className="text-[100px] md:text-[140px] font-light text-[#C41230] leading-none tracking-tighter drop-shadow-lg">
               <AnimatedCounter end={83} duration={3500} pauseDuration={5000} loop={true} />
               <span className="text-[100px] md:text-[140px]">%</span>
             </span>
           </div>
 
           {/* Texto debajo */}
-          <p className="text-xl md:text-2xl font-light text-gray-800 mt-4 leading-relaxed">
+          <p className="text-xl md:text-2xl font-medium text-gray-900 mt-4 leading-relaxed drop-shadow-sm">
             de los propietarios que tasaron con Lexinton
             <br />
-            <span className="text-gray-500">eligieron publicar con nosotros.</span>
+            <span className="text-gray-700 drop-shadow-sm">eligieron publicar con nosotros.</span>
           </p>
 
-          <p className="text-sm italic text-gray-400 mt-6">El resultado habla solo.</p>
+          <p className="text-base italic text-gray-600 drop-shadow-sm mt-6">El resultado habla solo.</p>
         </motion.div>
       </div>
     </section>

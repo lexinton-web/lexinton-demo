@@ -17,7 +17,7 @@ interface PageHeroProps {
 }
 
 export default function PageHero({ label, title, titleEmphasis, description, withImage, backgroundImage }: PageHeroProps) {
-  const bgSrc = backgroundImage || (withImage ? '/hero-poster.jpg' : null)
+  const bgSrc = backgroundImage || (withImage ? '/palermo1.jpg' : null)
   return (
     <section className="bg-[#f5f5f5] border-b border-gray-200 pt-[calc(68px+4rem)] pb-20 sm:pt-[calc(68px+6rem)] sm:pb-28 relative overflow-hidden">
       {/* Optional background image */}

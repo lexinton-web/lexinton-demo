@@ -18,7 +18,7 @@ export default function TasarHero() {
       {/* Parallax background image */}
       <motion.div style={{ y }} className="absolute inset-0 scale-110 pointer-events-none">
         <Image
-          src="/hero-poster.jpg"
+          src="/palermo1.jpg"
           fill
           alt=""
           className="object-cover opacity-15"
