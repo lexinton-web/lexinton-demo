@@ -41,8 +41,8 @@ export function TasacionCTA() {
           />
         </div>
 
-        {/* Overlay oscuro para legibilidad del texto */}
-        <div className="absolute inset-0 bg-[#0f1923]/60" />
+        {/* Overlay — cliente pidió full color; mantener en 0 para revertir fácil */}
+        <div className="absolute inset-0 bg-[#0f1923]/0" />
 
         <div className="relative z-10 flex flex-col gap-8">
 <div className="flex flex-col gap-1">
@@ -54,12 +54,12 @@ export function TasacionCTA() {
           </p>
         </div>
 
-        <h2 className="text-4xl md:text-5xl font-light text-white leading-tight">
+        <h2 className="text-4xl md:text-5xl font-light text-white leading-tight" style={{ textShadow: '0 2px 16px rgba(0,0,0,0.9)' }}>
           La venta de tu propiedad<br />
           <em className="not-italic font-normal text-gray-300">empieza acá.</em>
         </h2>
 
-        <p className="text-gray-400 leading-relaxed">
+        <p className="text-gray-400 leading-relaxed" style={{ textShadow: '0 2px 12px rgba(0,0,0,0.8)' }}>
           Vender bien no es cuestión de suerte. Es estrategia, exposición
           y llegar al comprador correcto en el momento justo.
         </p>

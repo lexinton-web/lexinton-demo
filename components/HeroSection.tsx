@@ -23,9 +23,9 @@ export default function HeroSection() {
         />
       </div>
 
-      {/* Overlay */}
-      <div className="absolute inset-0 bg-black/25" />
-      <div className="absolute bottom-0 left-0 right-0 h-64 bg-gradient-to-t from-black/40 to-transparent" />
+      {/* Overlay — cliente pidió full color; mantener en 0 para revertir fácil */}
+      <div className="absolute inset-0 bg-black/0" />
+      <div className="absolute bottom-0 left-0 right-0 h-64 bg-gradient-to-t from-black/0 to-transparent" />
 
       {/* Content */}
       <div className="relative z-10 flex-1 flex flex-col items-center justify-center text-white text-center px-5 sm:px-10 pt-[68px]">
@@ -38,7 +38,7 @@ export default function HeroSection() {
           className="flex items-center gap-4 mb-8"
         >
           <span className="block w-8 h-px bg-white/50" />
-          <span className="text-[10.5px] font-semibold tracking-[0.28em] uppercase text-white/70">
+          <span className="text-[10.5px] font-semibold tracking-[0.28em] uppercase text-white/70" style={{ textShadow: '0 2px 12px rgba(0,0,0,0.8)' }}>
             Palermo · Buenos Aires
           </span>
           <span className="block w-8 h-px bg-white/50" />
@@ -50,6 +50,7 @@ export default function HeroSection() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, ease, delay: 0.5 }}
           className="font-serif text-[clamp(2.8rem,6.5vw,5.2rem)] font-normal leading-[1.08] tracking-[-0.01em] max-w-4xl text-balance mb-6"
+          style={{ textShadow: '0 2px 16px rgba(0,0,0,0.9)' }}
         >
           Vendé bien.{' '}
           <em className="italic">Comprá mejor.</em>
@@ -61,6 +62,7 @@ export default function HeroSection() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, ease, delay: 0.7 }}
           className="text-[16px] sm:text-[18px] text-white/75 font-light leading-[1.7] max-w-xl mb-10 text-balance"
+          style={{ textShadow: '0 2px 12px rgba(0,0,0,0.8)' }}
         >
           Coordinamos venta, compra y tasación con una estrategia clara,
           tiempos sincronizados y acompañamiento experto.
