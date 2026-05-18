@@ -449,6 +449,24 @@ export async function getDevelopmentById(id: number): Promise<TokkoDevelopment |
   }
 }
 
+/**
+ * Obtiene las unidades (propiedades) asociadas a un emprendimiento.
+ * Endpoint correcto: /property/?development=DEV_ID
+ * (el parámetro es "development", no "development_id")
+ */
+export async function getDevelopmentUnits(devId: number): Promise<TokkoProperty[]> {
+  try {
+    const res = await tokkoFetch<TokkoPropertyListResponse>(
+      'property',
+      { development: devId, lang: 'es', limit: 100 },
+      300
+    )
+    return res?.objects ?? []
+  } catch {
+    return []
+  }
+}
+
 // ─── Leads / Contacto ─────────────────────────────────────────────────────────
 
 /**

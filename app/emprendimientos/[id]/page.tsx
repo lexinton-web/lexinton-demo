@@ -9,7 +9,7 @@
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { getDevelopmentById, getDevelopments } from '@/lib/tokko/queries'
+import { getDevelopmentById, getDevelopments, getDevelopmentUnits } from '@/lib/tokko/queries'
 import {
   developmentToProperty,
   getSortedPhotos, getPropertyTypeLabel,
@@ -18,6 +18,7 @@ import {
 } from '@/lib/tokko/utils'
 import { PropertyGallery } from '@/components/properties/PropertyGallery'
 import PropertyDetailClient from '@/components/properties/PropertyDetailClient'
+import { UnidadesSection } from '@/components/emprendimientos/UnidadesSection'
 
 export const revalidate = 300
 
@@ -63,6 +64,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 export default async function EmprendimientoDetallePage({ params }: PageProps) {
   const dev = await getDevelopmentById(parseSlugId(params.id))
   if (!dev) notFound()
+
+  // Fetch units in parallel
+  const units = await getDevelopmentUnits(dev.id)
 
   const property = developmentToProperty(dev)
   const photos = getSortedPhotos(property)
@@ -112,6 +116,13 @@ export default async function EmprendimientoDetallePage({ params }: PageProps) {
         similarProperties={[]}
         constructionStatus={CONSTRUCTION_STATUS_LABELS[dev.construction_status] ?? ''}
       />
+
+      {/* Unidades del emprendimiento */}
+      {units.length > 0 && (
+        <div className="max-w-7xl mx-auto px-5 sm:px-8 pb-14">
+          <UnidadesSection units={units} />
+        </div>
+      )}
     </main>
   )
 }
