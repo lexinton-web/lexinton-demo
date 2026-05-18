@@ -115,14 +115,10 @@ export default async function EmprendimientoDetallePage({ params }: PageProps) {
         isRent={false}
         similarProperties={[]}
         constructionStatus={CONSTRUCTION_STATUS_LABELS[dev.construction_status] ?? ''}
-      />
-
-      {/* Unidades del emprendimiento */}
-      {units.length > 0 && (
-        <div className="max-w-7xl mx-auto px-5 sm:px-8 pb-14">
+        unitsSlot={units.length > 0 ? (
           <UnidadesSection units={units} />
-        </div>
-      )}
+        ) : undefined}
+      />
     </main>
   )
 }

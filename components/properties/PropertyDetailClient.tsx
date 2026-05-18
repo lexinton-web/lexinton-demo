@@ -53,12 +53,13 @@ interface Props {
   isRent: boolean
   similarProperties: TokkoProperty[]
   constructionStatus?: string
+  unitsSlot?: React.ReactNode
 }
 
 export default function PropertyDetailClient({
   property, stats, description, tags, operationLabel, priceLabel,
   neighborhood, propertyType, coordinates, isRent, similarProperties,
-  constructionStatus,
+  constructionStatus, unitsSlot,
 }: Props) {
   const [expanded, setExpanded] = useState(false)
   const COLLAPSE_AT = 300
@@ -166,6 +167,9 @@ export default function PropertyDetailClient({
               </div>
             </motion.section>
           )}
+
+          {/* B3b) Slot para unidades de emprendimiento */}
+          {unitsSlot}
 
           {/* B4) Descripción con expand/collapse */}
           {description && (

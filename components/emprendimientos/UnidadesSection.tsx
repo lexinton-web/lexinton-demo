@@ -8,12 +8,17 @@ import type { TokkoProperty } from '@/lib/tokko/types'
 
 type TokkoUnit = TokkoProperty
 
-function getOpLabel(opType: string): string {
-  const t = opType.toLowerCase()
-  if (t.includes('sale')) return 'venta'
-  if (t.includes('temporary')) return 'temporal'
-  if (t.includes('rent')) return 'alquiler'
-  return opType
+/** Pick the best displayable price — skip ARS ≤ 1 placeholders, prefer USD */
+function getBestPrice(unit: TokkoUnit): { price: number; currency: string } | null {
+  const candidates: { price: number; currency: string }[] = []
+  for (const op of unit.operations ?? []) {
+    for (const p of op.prices ?? []) {
+      const val = Number(p.price)
+      if (val > 1) candidates.push({ price: val, currency: p.currency ?? 'USD' })
+    }
+  }
+  if (candidates.length === 0) return null
+  return candidates.find(c => c.currency === 'USD') ?? candidates[0]
 }
 
 function formatPrice(price: number, currency: string): string {
@@ -23,65 +28,69 @@ function formatPrice(price: number, currency: string): string {
 
 function UnitCard({ unit }: { unit: TokkoUnit }) {
   const photo = unit.photos?.[0]?.image
-  const title = unit.publication_title || unit.address || unit.fake_address || 'Sin título'
-  const surface = unit.surface || unit.roofed_surface
-  const totalSurface = unit.total_surface
-  const bathrooms = unit.bathroom_amount
   const typeName = typeof unit.type === 'object' ? unit.type?.name : null
-
-  // First price from first operation
-  const firstOp = unit.operations?.[0]
-  const firstPrice = firstOp?.prices?.[0]
-
+  const bestPrice = getBestPrice(unit)
+  const surface = unit.surface || unit.total_surface
+  const bathrooms = unit.bathroom_amount
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const garages = (unit as any).garages as number | undefined
   const href = `/propiedades/${makePropertySlug(unit.id, unit.fake_address || unit.address || '')}`
 
+  function scrollToContact() {
+    const aside = document.querySelector('aside')
+    aside?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }
+
   return (
-    <Link
-      href={href}
-      className="group border border-gray-200 rounded-xl overflow-hidden
-        hover:shadow-md hover:border-gray-300 transition-all duration-200 bg-white"
-    >
+    <div className="border border-gray-200 rounded-xl overflow-hidden hover:shadow-md transition-shadow bg-white">
       {/* Foto */}
-      <div className="relative h-32 bg-gray-100 overflow-hidden">
-        {photo ? (
-          <Image
-            src={photo}
-            alt={title}
-            fill
-            className="object-cover group-hover:scale-105 transition-transform duration-500"
-            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-          />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center text-gray-300">
-            <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1}
-                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-            </svg>
-          </div>
-        )}
-      </div>
+      <Link href={href}>
+        <div className="relative h-32 bg-gray-100 overflow-hidden">
+          {photo ? (
+            <Image
+              src={photo}
+              alt={unit.fake_address || unit.address || ''}
+              fill
+              className="object-cover hover:scale-105 transition-transform duration-500"
+              sizes="(max-width: 640px) 50vw, 25vw"
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center text-gray-300">
+              <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1}
+                  d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+            </div>
+          )}
+        </div>
+      </Link>
 
       {/* Info */}
       <div className="p-3">
-        {typeName && (
-          <p className="text-[10px] font-semibold text-[#C41230] uppercase tracking-wide mb-1">
-            {typeName}
-          </p>
-        )}
-        {firstPrice && (
-          <p className="text-sm font-semibold text-gray-900">
-            {formatPrice(firstPrice.price, firstPrice.currency)}
-          </p>
-        )}
+        <p className="text-[10px] font-semibold text-[#C41230] uppercase tracking-wide mb-1">
+          {typeName || 'Departamento'}
+        </p>
+        <p className="text-sm font-semibold text-gray-900">
+          {bestPrice ? formatPrice(bestPrice.price, bestPrice.currency) : 'Consultar precio'}
+        </p>
         <div className="flex flex-wrap gap-x-2 gap-y-0.5 text-[11px] text-gray-500 mt-1">
-          {surface && <span>{surface}m² cub.</span>}
-          {totalSurface && totalSurface !== surface && <span>{totalSurface}m² tot.</span>}
+          {surface != null && surface > 0 && <span>{surface}m² tot.</span>}
+          {unit.roofed_surface != null && unit.roofed_surface > 0 && unit.roofed_surface !== surface && (
+            <span>{unit.roofed_surface}m² cub.</span>
+          )}
           {bathrooms != null && bathrooms > 0 && (
             <span>{bathrooms} {bathrooms === 1 ? 'baño' : 'baños'}</span>
           )}
+          {garages != null && garages > 0 && <span>{garages} coch.</span>}
         </div>
+        <button
+          onClick={scrollToContact}
+          className="mt-3 w-full bg-[#C41230] text-white py-2 rounded-lg text-xs font-semibold hover:bg-[#a30f28] transition-colors"
+        >
+          Contactar
+        </button>
       </div>
-    </Link>
+    </div>
   )
 }
 
@@ -90,25 +99,20 @@ interface Props {
 }
 
 export function UnidadesSection({ units }: Props) {
-  // Only Apartments (filter out offices, warehouses, etc.)
-  const apartments = units.filter(u => {
-    const typeName = (typeof u.type === 'object' ? u.type?.name : '') ?? ''
-    return !typeName || typeName === 'Apartment' || typeName === 'Condo'
-  })
+  if (!units || units.length === 0) return null
 
-  const displayUnits = apartments.length > 0 ? apartments : units
-  if (!displayUnits || displayUnits.length === 0) return null
-
-  // Group by room_amount
+  // Group by room_amount — full word "Ambiente/Ambientes"
   const byRooms: Record<string, TokkoUnit[]> = {}
-  displayUnits.forEach(unit => {
+  units.forEach(unit => {
     const r = unit.room_amount
-    const key = r && r > 0 ? `${r} Amb.` : 'Sin especificar'
+    const key = r != null && r > 0
+      ? `${r} ${r === 1 ? 'Ambiente' : 'Ambientes'}`
+      : 'Sin especificar'
     if (!byRooms[key]) byRooms[key] = []
     byRooms[key].push(unit)
   })
 
-  // Sort tabs: numeric first, then 'Sin especificar'
+  // Sort tabs numerically
   const tabs = Object.keys(byRooms).sort((a, b) => {
     const na = parseInt(a), nb = parseInt(b)
     if (!isNaN(na) && !isNaN(nb)) return na - nb
@@ -133,7 +137,6 @@ export function UnidadesSection({ units }: Props) {
   const temporales = unitsInTab.filter(u =>
     u.operations?.some(op => op.operation_type?.toLowerCase().includes('temporary'))
   )
-  // Units that don't match any above
   const otros = unitsInTab.filter(u =>
     !ventas.includes(u) && !alquileres.includes(u) && !temporales.includes(u)
   )
@@ -158,21 +161,21 @@ export function UnidadesSection({ units }: Props) {
       <h2 className="text-lg font-semibold text-gray-900 mb-5">
         Unidades disponibles
         <span className="ml-2 text-sm font-normal text-gray-400">
-          ({displayUnits.length} en total)
+          ({units.length} en total)
         </span>
       </h2>
 
-      {/* Tabs por ambientes */}
+      {/* Tabs — underline style ZonaProp */}
       {tabs.length > 1 && (
-        <div className="flex gap-2 mb-6 flex-wrap">
+        <div className="flex gap-0 border-b border-gray-200 mb-6">
           {tabs.map(tab => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`px-4 py-1.5 rounded-full text-sm font-medium border transition-colors ${
+              className={`px-5 py-3 text-sm font-medium transition-colors border-b-2 -mb-px ${
                 activeTab === tab
-                  ? 'bg-gray-900 text-white border-gray-900'
-                  : 'bg-white text-gray-600 border-gray-200 hover:border-gray-400'
+                  ? 'border-gray-900 text-gray-900'
+                  : 'border-transparent text-gray-500 hover:text-gray-700'
               }`}
             >
               {tab}
