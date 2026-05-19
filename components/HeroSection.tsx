@@ -8,7 +8,7 @@ const ease = [0.22, 1, 0.36, 1] as const
 
 export default function HeroSection() {
   return (
-    <section className="relative h-[100svh] min-h-[680px] flex flex-col overflow-x-hidden">
+    <section className="relative h-[100svh] min-h-[680px] flex flex-col overflow-x-clip">
 
       {/* IMAGEN ESTÁTICA — LCP target, priority */}
       <div className="absolute inset-0">

@@ -64,7 +64,7 @@ function Popover({
 
   if (!open) return null
   return (
-    <div className="absolute left-0 top-[calc(100%+6px)] z-[60] w-72 bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
+    <div className="absolute left-0 top-[calc(100%+6px)] z-[200] w-72 bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
       {children}
     </div>
   )

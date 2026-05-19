@@ -31,6 +31,7 @@ const STAT_ICONS: Record<string, string> = {
   'Tipo':             'solar:tag-linear',
   'Barrio':           'solar:map-point-linear',
   'Estado de obra':   'solar:buildings-3-linear',
+  'Unidades':         'solar:home-2-linear',
 }
 
 const REDES = [

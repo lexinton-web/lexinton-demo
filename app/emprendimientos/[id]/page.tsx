@@ -14,8 +14,9 @@ import {
   developmentToProperty,
   getSortedPhotos, getPropertyTypeLabel,
   cleanDescription, getDisplayTags, getCoordinates,
-  getNeighborhood, CONDITION_LABELS, parseSlugId, makePropertySlug,
+  getNeighborhood, parseSlugId, makePropertySlug,
 } from '@/lib/tokko/utils'
+import { calcDevelopmentStats, formatRange, formatStatPrice } from '@/lib/tokko/development-stats'
 import { PropertyGallery } from '@/components/properties/PropertyGallery'
 import PropertyDetailClient from '@/components/properties/PropertyDetailClient'
 import { UnidadesSection } from '@/components/emprendimientos/UnidadesSection'
@@ -23,10 +24,10 @@ import { UnidadesSection } from '@/components/emprendimientos/UnidadesSection'
 export const revalidate = 300
 
 const CONSTRUCTION_STATUS_LABELS: Record<number, string> = {
-  0: 'En pozo',
-  1: 'En construcción',
-  2: 'Terminado',
-  3: 'Entrega inmediata',
+  1: 'En pozo',
+  2: 'En construcción',
+  3: 'Terminado',
+  4: 'Entrega inmediata',
 }
 
 interface PageProps {
@@ -73,14 +74,30 @@ export default async function EmprendimientoDetallePage({ params }: PageProps) {
   const coordinates = getCoordinates(property)
   const description = cleanDescription(property.description ?? '')
   const tags = getDisplayTags(property.tags ?? [], 12)
+  const devStats = calcDevelopmentStats(dev, units)
+
+  // Build stats for PropertyDetailClient — show data calculated from units
+  const stats: { label: string; value: string | number }[] = []
+  if (devStats.totalUnits > 0)
+    stats.push({ label: 'Unidades', value: devStats.totalUnits })
+  const surfTotal = formatRange(devStats.minTotalSurface, devStats.maxTotalSurface, ' m²')
+  if (surfTotal) stats.push({ label: 'Sup. total', value: surfTotal })
+  const surfCub = formatRange(devStats.minRoofedSurface, devStats.maxRoofedSurface, ' m²')
+  if (surfCub) stats.push({ label: 'Sup. cubierta', value: surfCub })
+  const roomsRange = formatRange(devStats.minRooms, devStats.maxRooms)
+  if (roomsRange) stats.push({ label: 'Ambientes', value: roomsRange })
+  const bathsRange = formatRange(devStats.minBathrooms, devStats.maxBathrooms)
+  if (bathsRange) stats.push({ label: 'Baños', value: bathsRange })
+  if (devStats.hasGarages) stats.push({ label: 'Cocheras', value: '✓' })
+  if (devStats.hasToilettes) stats.push({ label: 'Toilettes', value: '✓' })
+
+  // Price label from min unit price
+  const priceLabel = devStats.minPrice
+    ? `${devStats.priceOpType} desde ${formatStatPrice(devStats.minPrice, devStats.priceCurrency)}`
+    : ''
+
   const neighborhood = getNeighborhood(property)
   const propertyType = getPropertyTypeLabel(property) || 'Emprendimiento'
-  const condition = CONDITION_LABELS[property.property_condition ?? ''] ?? property.property_condition
-
-  const stats: { label: string; value: string | number }[] = []
-  if (dev.type?.name) stats.push({ label: 'Tipo', value: propertyType })
-  if (condition) stats.push({ label: 'Estado de obra', value: condition })
-  if (dev.location?.name) stats.push({ label: 'Barrio', value: dev.location.name })
 
   return (
     <main className="min-h-screen bg-white">
@@ -108,7 +125,7 @@ export default async function EmprendimientoDetallePage({ params }: PageProps) {
         description={description}
         tags={tags}
         operationLabel="Emprendimiento"
-        priceLabel=""
+        priceLabel={priceLabel}
         neighborhood={neighborhood}
         propertyType={propertyType}
         coordinates={coordinates}
