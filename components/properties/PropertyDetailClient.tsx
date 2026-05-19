@@ -121,9 +121,23 @@ export default function PropertyDetailClient({
             transition={{ duration: 0.5, ease }}
             className="mb-6"
           >
-            <h1 className="text-3xl font-light text-gray-900 leading-tight mb-1">
-              {property.fake_address || property.address}
-            </h1>
+            {(() => {
+              const displayAddress = property.fake_address || property.address
+              const pubTitle = property.publication_title
+              const hasSeparateTitle = pubTitle && pubTitle !== displayAddress
+              return hasSeparateTitle ? (
+                <>
+                  <h1 className="text-2xl md:text-3xl font-light text-gray-900 leading-snug mb-1">
+                    {pubTitle}
+                  </h1>
+                  <p className="text-base text-gray-500 mt-1">{displayAddress}</p>
+                </>
+              ) : (
+                <h1 className="text-3xl font-light text-gray-900 leading-tight mb-1">
+                  {displayAddress}
+                </h1>
+              )
+            })()}
             {neighborhood && (
               <p className="text-base text-gray-500 mb-4">{neighborhood}</p>
             )}
