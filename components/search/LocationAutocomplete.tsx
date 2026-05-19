@@ -233,7 +233,7 @@ export default function LocationAutocomplete({
 
       {/* Dropdown */}
       {isOpen && suggestions.length > 0 && (
-        <div className={`absolute top-full left-0 right-0 z-[60] ${dropdownBg} overflow-hidden`}>
+        <div className={`absolute top-full left-0 right-0 z-[200] mt-1 rounded-2xl ${dropdownBg} overflow-hidden`}>
           {suggestions.map((loc, idx) => (
             <button
               key={loc.id}
