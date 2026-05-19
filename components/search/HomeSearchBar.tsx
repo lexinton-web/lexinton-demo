@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import LocationAutocomplete from '@/components/search/LocationAutocomplete'
 
 const TABS = [
   { value: 'Sale',            label: 'Comprar' },
@@ -24,14 +25,15 @@ export function HomeSearchBar() {
   const router = useRouter()
   const [activeTab, setActiveTab] = useState<typeof TABS[number]['value']>('Sale')
   const [typeValue, setTypeValue] = useState('')
-  const [barrioInput, setBarrioInput] = useState('')
+  const [locationId, setLocationId] = useState('')
+  const [locationName, setLocationName] = useState('')
 
   const handleSearch = () => {
     if (activeTab === 'Emprendimientos') { router.push('/emprendimientos'); return }
     const p = new URLSearchParams()
     p.set('operation', activeTab)
     if (typeValue) p.set('type', typeValue)
-    if (barrioInput.trim()) p.set('barrio', barrioInput.trim())
+    if (locationId) { p.set('location', locationId); p.set('location_name', locationName) }
     router.push(`/propiedades?${p.toString()}`)
   }
 
@@ -82,28 +84,15 @@ export function HomeSearchBar() {
             </svg>
           </div>
 
-          {/* Barrio — input directo, sin dropdown */}
-          <div className="flex-1 relative">
-            <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none"
-              fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-              <path strokeLinecap="round" strokeLinejoin="round"
-                d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
-              <path strokeLinecap="round" strokeLinejoin="round"
-                d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" />
-            </svg>
-            <input
-              type="text"
-              value={barrioInput}
-              onChange={e => setBarrioInput(e.target.value)}
-              onKeyDown={e => { if (e.key === 'Enter') handleSearch() }}
-              placeholder="Barrio o zona..."
-              className="w-full pl-9 pr-4 py-3 border border-gray-200
-                rounded-xl text-sm text-gray-900
-                placeholder:text-gray-400
-                focus:outline-none focus:border-gray-400
-                bg-white"
-            />
-          </div>
+          {/* Barrio — LocationAutocomplete con IDs reales de Tokko */}
+          <LocationAutocomplete
+            value={locationId}
+            displayName={locationName}
+            onChange={(id, name) => { setLocationId(id); setLocationName(name) }}
+            placeholder="Barrio o zona..."
+            theme="light"
+            className="flex-1 rounded-xl border border-gray-200 overflow-hidden"
+          />
 
           {/* Buscar */}
           <button
