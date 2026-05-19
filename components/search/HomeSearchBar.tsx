@@ -1,21 +1,20 @@
 'use client'
 
 /**
- * HomeSearchBar — Buscador del hero con layout ZonaProp.
+ * HomeSearchBar — Buscador del hero.
  *
- * Fila 1: tabs Alquilar | Comprar | Emprendimientos
- * Fila 2: [Tipo v] [Barrio dropdown] [BUSCAR]
- *
- * Redirige a /propiedades con los mismos searchParams que espera esa página.
+ * El dropdown de barrio usa createPortal → renderiza en document.body,
+ * escapando cualquier overflow:hidden de ancestros (incluido el hero).
  */
 
-import { useState, useRef, useEffect, type ReactNode } from 'react'
+import { useState, useRef, useEffect, useCallback, type ReactNode } from 'react'
+import { createPortal } from 'react-dom'
 import { useRouter } from 'next/navigation'
 
 const TABS = [
-  { value: 'Sale',            label: 'Comprar',         op: 'Sale' },
-  { value: 'Rent',            label: 'Alquilar',        op: 'Rent' },
-  { value: 'Emprendimientos', label: 'Emprendimientos', op: null },
+  { value: 'Sale',            label: 'Comprar' },
+  { value: 'Rent',            label: 'Alquilar' },
+  { value: 'Emprendimientos', label: 'Emprendimientos' },
 ] as const
 
 const TYPES = [
@@ -35,12 +34,12 @@ const PRIORITY_GROUPS = [
   { label: 'Nuñez',   matches: ['Nuñez'] },
   { label: 'Recoleta', matches: ['Recoleta'] },
 ]
-const ALL_PRIORITY_NAMES = PRIORITY_GROUPS.flatMap((g) => g.matches)
+const ALL_PRIORITY_NAMES = PRIORITY_GROUPS.flatMap(g => g.matches)
 
 interface LocItem { id: number; name: string }
 
-// ── Inline Popover ────────────────────────────────────────────────────────────
-function Popover({
+// ── Portaled dropdown — escapa overflow de cualquier ancestro ─────────────────
+function BarrioDropdown({
   open, anchorRef, onClose, children,
 }: {
   open: boolean
@@ -48,6 +47,22 @@ function Popover({
   onClose: () => void
   children: ReactNode
 }) {
+  const [style, setStyle] = useState<React.CSSProperties>({})
+
+  // Recalcular posición cada vez que abre
+  useEffect(() => {
+    if (!open || !anchorRef.current) return
+    const rect = anchorRef.current.getBoundingClientRect()
+    setStyle({
+      position: 'fixed',
+      top: rect.bottom + 6,
+      left: rect.left,
+      width: Math.max(rect.width, 288),
+      zIndex: 9999,
+    })
+  }, [open, anchorRef])
+
+  // Cerrar al clickear fuera o presionar Escape
   useEffect(() => {
     if (!open) return
     const onMouse = (e: MouseEvent) => {
@@ -63,20 +78,20 @@ function Popover({
   }, [open, anchorRef, onClose])
 
   if (!open) return null
-  return (
-    <div className="absolute left-0 top-[calc(100%+6px)] z-[200] w-72 bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
+  return createPortal(
+    <div style={style} className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
       {children}
-    </div>
+    </div>,
+    document.body
   )
 }
 
-// ── Main component ────────────────────────────────────────────────────────────
+// ── Main ──────────────────────────────────────────────────────────────────────
 export function HomeSearchBar() {
   const router = useRouter()
   const [activeTab, setActiveTab] = useState<typeof TABS[number]['value']>('Sale')
   const [typeValue, setTypeValue] = useState('')
 
-  // Barrio state
   const [barrioOpen, setBarrioOpen] = useState(false)
   const [barrioQ, setBarrioQ] = useState('')
   const [locationId, setLocationId] = useState('')
@@ -85,34 +100,46 @@ export function HomeSearchBar() {
   const [locLoading, setLocLoading] = useState(false)
   const barrioRef = useRef<HTMLDivElement>(null)
 
-  // Load locations once on open
-  useEffect(() => {
-    if (!barrioOpen || locations.length > 0) return
+  const loadLocations = useCallback(() => {
+    if (locations.length > 0) return
     setLocLoading(true)
     fetch('/api/locations')
-      .then((r) => r.json())
+      .then(r => r.json())
       .then((data: LocItem[]) => setLocations(data))
       .catch(() => {})
       .finally(() => setLocLoading(false))
-  }, [barrioOpen, locations.length])
+  }, [locations.length])
+
+  useEffect(() => {
+    if (barrioOpen) loadLocations()
+  }, [barrioOpen, loadLocations])
 
   const filteredLocs = barrioQ
-    ? locations.filter((l) => l.name.toLowerCase().includes(barrioQ.toLowerCase()))
+    ? locations.filter(l => l.name.toLowerCase().includes(barrioQ.toLowerCase()))
     : locations
+
   const restLocs = locations
-    .filter((l) => !ALL_PRIORITY_NAMES.some((m) => m.toLowerCase() === l.name.toLowerCase()))
+    .filter(l => !ALL_PRIORITY_NAMES.some(m => m.toLowerCase() === l.name.toLowerCase()))
     .sort((a, b) => a.name.localeCompare(b.name, 'es'))
 
   function groupLocationIds(group: typeof PRIORITY_GROUPS[0]) {
     return locations
-      .filter((l) => group.matches.some((m) => m.toLowerCase() === l.name.toLowerCase()))
-      .map((l) => l.id)
+      .filter(l => group.matches.some(m => m.toLowerCase() === l.name.toLowerCase()))
+      .map(l => l.id)
   }
+
   function selectGroup(group: typeof PRIORITY_GROUPS[0]) {
-    const ids = groupLocationIds(group)
-    setLocationId(ids.join(','))
+    setLocationId(groupLocationIds(group).join(','))
     setLocationName(group.label)
-    setBarrioQ(''); setBarrioOpen(false)
+    setBarrioQ('')
+    setBarrioOpen(false)
+  }
+
+  function clearBarrio() {
+    setLocationId('')
+    setLocationName('')
+    setBarrioQ('')
+    setBarrioOpen(false)
   }
 
   const handleSearch = () => {
@@ -126,11 +153,11 @@ export function HomeSearchBar() {
 
   return (
     <div className="w-full max-w-2xl mx-auto">
-      <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl overflow-visible">
+      <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl">
 
-        {/* ── Fila 1: Tabs ──────────────────────────────────────────── */}
+        {/* Tabs */}
         <div className="flex border-b border-gray-100 rounded-t-2xl overflow-hidden">
-          {TABS.map((tab) => (
+          {TABS.map(tab => (
             <button
               key={tab.value}
               type="button"
@@ -147,21 +174,21 @@ export function HomeSearchBar() {
           ))}
         </div>
 
-        {/* ── Fila 2: Tipo + Barrio + Botón ─────────────────────────── */}
+        {/* Filtros */}
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 p-3">
 
-          {/* Select de tipo */}
+          {/* Tipo */}
           <div className="relative sm:flex-shrink-0">
             <label htmlFor="home-property-type" className="sr-only">Tipo de propiedad</label>
             <select
               id="home-property-type"
               value={typeValue}
-              onChange={(e) => setTypeValue(e.target.value)}
+              onChange={e => setTypeValue(e.target.value)}
               className="appearance-none bg-white border border-gray-200 rounded-xl
                 px-4 py-3 pr-8 text-sm text-gray-700 w-full sm:min-w-[150px]
                 focus:outline-none focus:border-gray-400 cursor-pointer"
             >
-              {TYPES.map((t) => (
+              {TYPES.map(t => (
                 <option key={t.value} value={t.value}>{t.label}</option>
               ))}
             </select>
@@ -171,11 +198,11 @@ export function HomeSearchBar() {
             </svg>
           </div>
 
-          {/* Barrio dropdown */}
+          {/* Barrio — trigger + portal dropdown */}
           <div ref={barrioRef} className="relative flex-1 min-w-0">
             <button
               type="button"
-              onClick={() => setBarrioOpen((v) => !v)}
+              onClick={() => setBarrioOpen(v => !v)}
               className={[
                 'w-full flex items-center justify-between border rounded-xl px-4 py-3 text-sm transition-colors',
                 barrioOpen ? 'border-gray-400' : 'border-gray-200 hover:border-gray-300',
@@ -189,7 +216,7 @@ export function HomeSearchBar() {
               </svg>
             </button>
 
-            <Popover open={barrioOpen} anchorRef={barrioRef} onClose={() => setBarrioOpen(false)}>
+            <BarrioDropdown open={barrioOpen} anchorRef={barrioRef} onClose={() => setBarrioOpen(false)}>
               <div className="p-3">
                 <div className="flex items-center gap-2 border border-gray-200 rounded-xl px-3 py-2 mb-2 focus-within:border-[#C41230] transition-colors">
                   <svg className="w-4 h-4 text-gray-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -199,58 +226,53 @@ export function HomeSearchBar() {
                     autoFocus
                     placeholder="Buscar barrio..."
                     value={barrioQ}
-                    onChange={(e) => setBarrioQ(e.target.value)}
-                    className="flex-1 text-sm outline-none placeholder:text-gray-400"
+                    onChange={e => setBarrioQ(e.target.value)}
+                    className="flex-1 text-sm text-gray-900 outline-none placeholder:text-gray-400"
                   />
                 </div>
                 <div className="max-h-56 overflow-y-auto">
-                  {locLoading && <p className="text-[12px] text-gray-400 text-center py-4">Cargando barrios...</p>}
+                  {locLoading && (
+                    <p className="text-[12px] text-gray-400 text-center py-4">Cargando barrios...</p>
+                  )}
                   {!locLoading && locationName && (
-                    <button type="button"
-                      onClick={() => { setLocationId(''); setLocationName(''); setBarrioQ(''); setBarrioOpen(false) }}
-                      className="w-full text-left px-3 py-2 text-[12.5px] text-[#C41230] hover:bg-red-50 rounded-lg transition-colors mb-1"
-                    >
+                    <button type="button" onClick={clearBarrio}
+                      className="w-full text-left px-3 py-2 text-[12.5px] text-[#C41230] hover:bg-red-50 rounded-lg transition-colors mb-1">
                       × Limpiar selección
                     </button>
                   )}
                   {!locLoading && filteredLocs.length === 0 && barrioQ && (
                     <p className="text-[12px] text-gray-400 text-center py-4">Sin resultados</p>
                   )}
-                  {!barrioQ && PRIORITY_GROUPS.map((group) => (
-                    <button key={group.label} type="button"
-                      onClick={() => selectGroup(group)}
-                      className={`w-full flex items-center justify-between px-3 py-2 text-[12.5px] rounded-lg transition-colors ${
+                  {!barrioQ && PRIORITY_GROUPS.map(group => (
+                    <button key={group.label} type="button" onClick={() => selectGroup(group)}
+                      className={`w-full text-left px-3 py-2 text-[12.5px] rounded-lg transition-colors ${
                         locationName === group.label
                           ? 'bg-red-50 text-[#C41230] font-semibold'
                           : 'text-gray-700 hover:bg-gray-50'
-                      }`}
-                    >
-                      <span>{group.label}</span>
+                      }`}>
+                      {group.label}
                     </button>
                   ))}
-                  {!barrioQ && PRIORITY_GROUPS.length > 0 && <div className="my-2 border-t border-gray-100" />}
-                  {(barrioQ ? filteredLocs : restLocs).map((l) => (
+                  {!barrioQ && PRIORITY_GROUPS.length > 0 && (
+                    <div className="my-2 border-t border-gray-100" />
+                  )}
+                  {(barrioQ ? filteredLocs : restLocs).map(l => (
                     <button key={l.id} type="button"
-                      onClick={() => {
-                        setLocationId(String(l.id))
-                        setLocationName(l.name)
-                        setBarrioQ(''); setBarrioOpen(false)
-                      }}
+                      onClick={() => { setLocationId(String(l.id)); setLocationName(l.name); setBarrioQ(''); setBarrioOpen(false) }}
                       className={`w-full text-left px-3 py-2 text-[12.5px] rounded-lg transition-colors ${
                         locationId === String(l.id)
                           ? 'bg-red-50 text-[#C41230] font-semibold'
                           : 'text-gray-700 hover:bg-gray-50'
-                      }`}
-                    >
+                      }`}>
                       {l.name}
                     </button>
                   ))}
                 </div>
               </div>
-            </Popover>
+            </BarrioDropdown>
           </div>
 
-          {/* Botón Buscar */}
+          {/* Buscar */}
           <button
             type="button"
             onClick={handleSearch}
