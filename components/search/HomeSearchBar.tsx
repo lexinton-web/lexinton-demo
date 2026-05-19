@@ -1,14 +1,6 @@
 'use client'
 
-/**
- * HomeSearchBar — Buscador del hero.
- *
- * El dropdown de barrio usa createPortal → renderiza en document.body,
- * escapando cualquier overflow:hidden de ancestros (incluido el hero).
- */
-
-import { useState, useRef, useEffect, useCallback, type ReactNode } from 'react'
-import { createPortal } from 'react-dom'
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 
 const TABS = [
@@ -28,126 +20,18 @@ const TYPES = [
   { value: '10', label: 'Cochera' },
 ]
 
-const PRIORITY_GROUPS = [
-  { label: 'Palermo',  matches: ['Palermo', 'Palermo Soho', 'Palermo Hollywood', 'Palermo Chico'] },
-  { label: 'Belgrano', matches: ['Belgrano', 'Belgrano C', 'Belgrano R', 'Belgrano Barrancas'] },
-  { label: 'Nuñez',   matches: ['Nuñez'] },
-  { label: 'Recoleta', matches: ['Recoleta'] },
-]
-const ALL_PRIORITY_NAMES = PRIORITY_GROUPS.flatMap(g => g.matches)
-
-interface LocItem { id: number; name: string }
-
-// ── Portaled dropdown — escapa overflow de cualquier ancestro ─────────────────
-function BarrioDropdown({
-  open, anchorRef, onClose, children,
-}: {
-  open: boolean
-  anchorRef: React.RefObject<HTMLDivElement>
-  onClose: () => void
-  children: ReactNode
-}) {
-  const [style, setStyle] = useState<React.CSSProperties>({})
-
-  // Recalcular posición cada vez que abre
-  useEffect(() => {
-    if (!open || !anchorRef.current) return
-    const rect = anchorRef.current.getBoundingClientRect()
-    setStyle({
-      position: 'fixed',
-      top: rect.bottom + 6,
-      left: rect.left,
-      width: Math.max(rect.width, 288),
-      zIndex: 9999,
-    })
-  }, [open, anchorRef])
-
-  // Cerrar al clickear fuera o presionar Escape
-  useEffect(() => {
-    if (!open) return
-    const onMouse = (e: MouseEvent) => {
-      if (!anchorRef.current?.contains(e.target as Node)) onClose()
-    }
-    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose() }
-    document.addEventListener('mousedown', onMouse)
-    document.addEventListener('keydown', onKey)
-    return () => {
-      document.removeEventListener('mousedown', onMouse)
-      document.removeEventListener('keydown', onKey)
-    }
-  }, [open, anchorRef, onClose])
-
-  if (!open) return null
-  return createPortal(
-    <div style={style} className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
-      {children}
-    </div>,
-    document.body
-  )
-}
-
-// ── Main ──────────────────────────────────────────────────────────────────────
 export function HomeSearchBar() {
   const router = useRouter()
   const [activeTab, setActiveTab] = useState<typeof TABS[number]['value']>('Sale')
   const [typeValue, setTypeValue] = useState('')
-
-  const [barrioOpen, setBarrioOpen] = useState(false)
-  const [barrioQ, setBarrioQ] = useState('')
-  const [locationId, setLocationId] = useState('')
-  const [locationName, setLocationName] = useState('')
-  const [locations, setLocations] = useState<LocItem[]>([])
-  const [locLoading, setLocLoading] = useState(false)
-  const barrioRef = useRef<HTMLDivElement>(null)
-
-  const loadLocations = useCallback(() => {
-    if (locations.length > 0) return
-    setLocLoading(true)
-    fetch('/api/locations')
-      .then(r => r.json())
-      .then((data: LocItem[]) => setLocations(data))
-      .catch(() => {})
-      .finally(() => setLocLoading(false))
-  }, [locations.length])
-
-  useEffect(() => {
-    if (barrioOpen) loadLocations()
-  }, [barrioOpen, loadLocations])
-
-  const filteredLocs = barrioQ
-    ? locations.filter(l => l.name.toLowerCase().includes(barrioQ.toLowerCase()))
-    : locations
-
-  const restLocs = locations
-    .filter(l => !ALL_PRIORITY_NAMES.some(m => m.toLowerCase() === l.name.toLowerCase()))
-    .sort((a, b) => a.name.localeCompare(b.name, 'es'))
-
-  function groupLocationIds(group: typeof PRIORITY_GROUPS[0]) {
-    return locations
-      .filter(l => group.matches.some(m => m.toLowerCase() === l.name.toLowerCase()))
-      .map(l => l.id)
-  }
-
-  function selectGroup(group: typeof PRIORITY_GROUPS[0]) {
-    setLocationId(groupLocationIds(group).join(','))
-    setLocationName(group.label)
-    setBarrioQ('')
-    setBarrioOpen(false)
-  }
-
-  function clearBarrio() {
-    setLocationId('')
-    setLocationName('')
-    setBarrioQ('')
-    setBarrioOpen(false)
-  }
+  const [barrioInput, setBarrioInput] = useState('')
 
   const handleSearch = () => {
     if (activeTab === 'Emprendimientos') { router.push('/emprendimientos'); return }
     const p = new URLSearchParams()
     p.set('operation', activeTab)
     if (typeValue) p.set('type', typeValue)
-    if (locationId) { p.set('location', locationId); p.set('location_name', locationName) }
+    if (barrioInput.trim()) p.set('barrio', barrioInput.trim())
     router.push(`/propiedades?${p.toString()}`)
   }
 
@@ -198,78 +82,27 @@ export function HomeSearchBar() {
             </svg>
           </div>
 
-          {/* Barrio — trigger + portal dropdown */}
-          <div ref={barrioRef} className="relative flex-1 min-w-0">
-            <button
-              type="button"
-              onClick={() => setBarrioOpen(v => !v)}
-              className={[
-                'w-full flex items-center justify-between border rounded-xl px-4 py-3 text-sm transition-colors',
-                barrioOpen ? 'border-gray-400' : 'border-gray-200 hover:border-gray-300',
-                locationName ? 'text-gray-900' : 'text-gray-400',
-              ].join(' ')}
-            >
-              <span className="truncate">{locationName || 'Barrio o zona...'}</span>
-              <svg className={`w-3.5 h-3.5 ml-2 text-gray-400 shrink-0 transition-transform ${barrioOpen ? 'rotate-180' : ''}`}
-                fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="m19 9-7 7-7-7" />
-              </svg>
-            </button>
-
-            <BarrioDropdown open={barrioOpen} anchorRef={barrioRef} onClose={() => setBarrioOpen(false)}>
-              <div className="p-3">
-                <div className="flex items-center gap-2 border border-gray-200 rounded-xl px-3 py-2 mb-2 focus-within:border-[#C41230] transition-colors">
-                  <svg className="w-4 h-4 text-gray-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" />
-                  </svg>
-                  <input
-                    autoFocus
-                    placeholder="Buscar barrio..."
-                    value={barrioQ}
-                    onChange={e => setBarrioQ(e.target.value)}
-                    className="flex-1 text-sm text-gray-900 outline-none placeholder:text-gray-400"
-                  />
-                </div>
-                <div className="max-h-56 overflow-y-auto">
-                  {locLoading && (
-                    <p className="text-[12px] text-gray-400 text-center py-4">Cargando barrios...</p>
-                  )}
-                  {!locLoading && locationName && (
-                    <button type="button" onClick={clearBarrio}
-                      className="w-full text-left px-3 py-2 text-[12.5px] text-[#C41230] hover:bg-red-50 rounded-lg transition-colors mb-1">
-                      × Limpiar selección
-                    </button>
-                  )}
-                  {!locLoading && filteredLocs.length === 0 && barrioQ && (
-                    <p className="text-[12px] text-gray-400 text-center py-4">Sin resultados</p>
-                  )}
-                  {!barrioQ && PRIORITY_GROUPS.map(group => (
-                    <button key={group.label} type="button" onClick={() => selectGroup(group)}
-                      className={`w-full text-left px-3 py-2 text-[12.5px] rounded-lg transition-colors ${
-                        locationName === group.label
-                          ? 'bg-red-50 text-[#C41230] font-semibold'
-                          : 'text-gray-700 hover:bg-gray-50'
-                      }`}>
-                      {group.label}
-                    </button>
-                  ))}
-                  {!barrioQ && PRIORITY_GROUPS.length > 0 && (
-                    <div className="my-2 border-t border-gray-100" />
-                  )}
-                  {(barrioQ ? filteredLocs : restLocs).map(l => (
-                    <button key={l.id} type="button"
-                      onClick={() => { setLocationId(String(l.id)); setLocationName(l.name); setBarrioQ(''); setBarrioOpen(false) }}
-                      className={`w-full text-left px-3 py-2 text-[12.5px] rounded-lg transition-colors ${
-                        locationId === String(l.id)
-                          ? 'bg-red-50 text-[#C41230] font-semibold'
-                          : 'text-gray-700 hover:bg-gray-50'
-                      }`}>
-                      {l.name}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </BarrioDropdown>
+          {/* Barrio — input directo, sin dropdown */}
+          <div className="flex-1 relative">
+            <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none"
+              fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+              <path strokeLinecap="round" strokeLinejoin="round"
+                d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+              <path strokeLinecap="round" strokeLinejoin="round"
+                d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" />
+            </svg>
+            <input
+              type="text"
+              value={barrioInput}
+              onChange={e => setBarrioInput(e.target.value)}
+              onKeyDown={e => { if (e.key === 'Enter') handleSearch() }}
+              placeholder="Barrio o zona..."
+              className="w-full pl-9 pr-4 py-3 border border-gray-200
+                rounded-xl text-sm text-gray-900
+                placeholder:text-gray-400
+                focus:outline-none focus:border-gray-400
+                bg-white"
+            />
           </div>
 
           {/* Buscar */}
@@ -282,7 +115,8 @@ export function HomeSearchBar() {
               hover:bg-[#a30f28] transition-colors"
           >
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+              <path strokeLinecap="round" strokeLinejoin="round"
+                d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
             </svg>
             Buscar
           </button>
