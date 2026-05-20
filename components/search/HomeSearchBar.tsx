@@ -91,7 +91,7 @@ export function HomeSearchBar() {
             onChange={(id, name) => { setLocationId(id); setLocationName(name) }}
             placeholder="Barrio o zona..."
             theme="light"
-            className="flex-1 rounded-xl border border-gray-200 overflow-hidden"
+            className="flex-1 rounded-xl border border-gray-200"
           />
 
           {/* Buscar */}
