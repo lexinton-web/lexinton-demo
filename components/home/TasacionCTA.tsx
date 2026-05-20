@@ -41,25 +41,25 @@ export function TasacionCTA() {
           />
         </div>
 
-        {/* Overlay — cliente pidió full color; mantener en 0 para revertir fácil */}
-        <div className="absolute inset-0 bg-[#0f1923]/0" />
+        {/* Overlay — oscurecer para legibilidad del texto */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/55 via-black/35 to-black/50" />
 
         <div className="relative z-10 flex flex-col gap-8">
 <div className="flex flex-col gap-1">
-          <p className="text-xs text-gray-400 uppercase tracking-[0.15em]">
+          <p className="text-xs text-white/70 uppercase tracking-[0.15em] drop-shadow-[0_1px_4px_rgba(0,0,0,0.8)]">
             Vendé con éxito
           </p>
-          <p className="text-xs text-[#C41230] uppercase tracking-[0.2em] font-medium">
+          <p className="text-xs text-[#ff6b6b] uppercase tracking-[0.2em] font-medium drop-shadow-[0_1px_4px_rgba(0,0,0,0.8)]">
             Vendé con Lexinton
           </p>
         </div>
 
-        <h2 className="text-4xl md:text-5xl font-light text-white leading-tight" style={{ textShadow: '0 2px 16px rgba(0,0,0,0.9)' }}>
+        <h2 className="text-4xl md:text-5xl font-bold text-white leading-tight drop-shadow-[0_2px_10px_rgba(0,0,0,0.9)]">
           La venta de tu propiedad<br />
-          <em className="not-italic font-normal text-gray-300">empieza acá.</em>
+          <em className="not-italic font-bold text-white">empieza acá.</em>
         </h2>
 
-        <p className="text-gray-400 leading-relaxed" style={{ textShadow: '0 2px 12px rgba(0,0,0,0.8)' }}>
+        <p className="text-white font-medium leading-relaxed drop-shadow-[0_1px_6px_rgba(0,0,0,0.8)]">
           Vender bien no es cuestión de suerte. Es estrategia, exposición
           y llegar al comprador correcto en el momento justo.
         </p>
@@ -78,7 +78,7 @@ export function TasacionCTA() {
                 initial: { opacity: 0, y: 10 },
                 animate: { opacity: 1, y: 0, transition: { duration: 0.4 } }
               }}
-              className="flex items-start gap-3 text-gray-300 text-sm"
+              className="flex items-start gap-3 text-white text-sm drop-shadow-[0_1px_4px_rgba(0,0,0,0.7)]"
             >
               <Icon
                 icon="solar:check-circle-bold"
@@ -102,7 +102,7 @@ export function TasacionCTA() {
           ))}
         </div>
 
-        <p className="text-sm italic text-gray-500">
+        <p className="text-sm italic text-white/80 drop-shadow-[0_1px_4px_rgba(0,0,0,0.7)]">
           El resultado: más personas viendo tu propiedad, en menos tiempo.
         </p>
 
@@ -147,13 +147,13 @@ export function TasacionCTA() {
         <div className="relative z-10 flex flex-col justify-between h-full">
           <div>
             <div className="flex items-start leading-none">
-              <span className="text-[64px] md:text-[80px] font-light text-white leading-none">
+              <span className="text-[64px] md:text-[80px] font-light text-white leading-none drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)]">
                 <AnimatedCounter end={83} duration={3500} pauseDuration={5000} loop={true} />
               </span>
               <span className="text-3xl text-white/70 mt-2">%</span>
             </div>
 
-            <p className="text-sm text-white/85 leading-snug mt-2 max-w-[200px]">
+            <p className="text-sm text-white font-medium leading-snug mt-2 max-w-[200px] drop-shadow-[0_1px_4px_rgba(0,0,0,0.7)]">
               de los propietarios que vendieron con Lexinton
               volvieron a elegirnos.
             </p>
