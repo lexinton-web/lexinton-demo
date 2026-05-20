@@ -64,7 +64,7 @@ function Popover({
 
   if (!open) return null
   return (
-    <div className="absolute left-0 top-[calc(100%+6px)] z-[60] w-72 bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
+    <div className="absolute left-0 top-[calc(100%+6px)] z-[200] w-full min-w-[280px] bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
       {children}
     </div>
   )
@@ -96,7 +96,8 @@ export function HomeSearchBar() {
       .finally(() => setLocLoading(false))
   }, [barrioOpen, locations.length])
 
-  const filteredLocs = barrioQ
+  const isSearching = barrioQ !== '' && barrioQ !== locationName
+  const filteredLocs = isSearching
     ? locations.filter((l) => l.name.toLowerCase().includes(barrioQ.toLowerCase()))
     : locations
   const restLocs = locations
@@ -112,7 +113,8 @@ export function HomeSearchBar() {
     const ids = groupLocationIds(group)
     setLocationId(ids.join(','))
     setLocationName(group.label)
-    setBarrioQ(''); setBarrioOpen(false)
+    setBarrioQ(group.label)
+    setBarrioOpen(false)
   }
 
   const handleSearch = () => {
@@ -171,52 +173,71 @@ export function HomeSearchBar() {
             </svg>
           </div>
 
-          {/* Barrio dropdown */}
+          {/* Barrio — input directo que despliega dropdown */}
           <div ref={barrioRef} className="relative flex-1 min-w-0">
-            <button
-              type="button"
-              onClick={() => setBarrioOpen((v) => !v)}
-              className={[
-                'w-full flex items-center justify-between border rounded-xl px-4 py-3 text-sm transition-colors',
-                barrioOpen ? 'border-gray-400' : 'border-gray-200 hover:border-gray-300',
-                locationName ? 'text-gray-900' : 'text-gray-400',
-              ].join(' ')}
-            >
-              <span className="truncate">{locationName || 'Barrio o zona...'}</span>
-              <svg className={`w-3.5 h-3.5 ml-2 text-gray-400 shrink-0 transition-transform ${barrioOpen ? 'rotate-180' : ''}`}
-                fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="m19 9-7 7-7-7" />
+            <div className={[
+              'w-full flex items-center gap-2 border rounded-xl px-4 py-2.5 bg-white transition-colors',
+              barrioOpen ? 'border-gray-400' : 'border-gray-200 hover:border-gray-300',
+            ].join(' ')}>
+              <svg className="w-4 h-4 text-gray-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" />
               </svg>
-            </button>
+              <input
+                type="text"
+                placeholder="Buscar barrio..."
+                value={barrioQ}
+                onChange={(e) => {
+                  const val = e.target.value
+                  setBarrioQ(val)
+                  setBarrioOpen(true)
+                  if (val !== locationName) {
+                    setLocationId('')
+                    setLocationName('')
+                  }
+                }}
+                onFocus={() => setBarrioOpen(true)}
+                className="flex-1 text-sm text-gray-900 outline-none placeholder:text-gray-400 bg-transparent"
+              />
+              {/* Botón de limpiar si hay algo seleccionado o escrito */}
+              {(barrioQ || locationName) && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setBarrioQ('')
+                    setLocationId('')
+                    setLocationName('')
+                    setBarrioOpen(true)
+                  }}
+                  className="text-gray-400 hover:text-gray-600 focus:outline-none shrink-0"
+                >
+                  <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              )}
+            </div>
 
             <Popover open={barrioOpen} anchorRef={barrioRef} onClose={() => setBarrioOpen(false)}>
               <div className="p-3">
-                <div className="flex items-center gap-2 border border-gray-200 rounded-xl px-3 py-2 mb-2 focus-within:border-[#C41230] transition-colors">
-                  <svg className="w-4 h-4 text-gray-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" />
-                  </svg>
-                  <input
-                    autoFocus
-                    placeholder="Buscar barrio..."
-                    value={barrioQ}
-                    onChange={(e) => setBarrioQ(e.target.value)}
-                    className="flex-1 text-sm outline-none placeholder:text-gray-400"
-                  />
-                </div>
                 <div className="max-h-56 overflow-y-auto">
                   {locLoading && <p className="text-[12px] text-gray-400 text-center py-4">Cargando barrios...</p>}
                   {!locLoading && locationName && (
                     <button type="button"
-                      onClick={() => { setLocationId(''); setLocationName(''); setBarrioQ(''); setBarrioOpen(false) }}
+                      onClick={() => {
+                        setLocationId('')
+                        setLocationName('')
+                        setBarrioQ('')
+                        setBarrioOpen(false)
+                      }}
                       className="w-full text-left px-3 py-2 text-[12.5px] text-[#C41230] hover:bg-red-50 rounded-lg transition-colors mb-1"
                     >
                       × Limpiar selección
                     </button>
                   )}
-                  {!locLoading && filteredLocs.length === 0 && barrioQ && (
+                  {!locLoading && filteredLocs.length === 0 && isSearching && (
                     <p className="text-[12px] text-gray-400 text-center py-4">Sin resultados</p>
                   )}
-                  {!barrioQ && PRIORITY_GROUPS.map((group) => (
+                  {!isSearching && PRIORITY_GROUPS.map((group) => (
                     <button key={group.label} type="button"
                       onClick={() => selectGroup(group)}
                       className={`w-full flex items-center justify-between px-3 py-2 text-[12.5px] rounded-lg transition-colors ${
@@ -228,13 +249,14 @@ export function HomeSearchBar() {
                       <span>{group.label}</span>
                     </button>
                   ))}
-                  {!barrioQ && PRIORITY_GROUPS.length > 0 && <div className="my-2 border-t border-gray-100" />}
-                  {(barrioQ ? filteredLocs : restLocs).map((l) => (
+                  {!isSearching && PRIORITY_GROUPS.length > 0 && <div className="my-2 border-t border-gray-100" />}
+                  {(isSearching ? filteredLocs : restLocs).map((l) => (
                     <button key={l.id} type="button"
                       onClick={() => {
                         setLocationId(String(l.id))
                         setLocationName(l.name)
-                        setBarrioQ(''); setBarrioOpen(false)
+                        setBarrioQ(l.name)
+                        setBarrioOpen(false)
                       }}
                       className={`w-full text-left px-3 py-2 text-[12.5px] rounded-lg transition-colors ${
                         locationId === String(l.id)
