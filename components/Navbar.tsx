@@ -61,7 +61,7 @@ export default function Navbar() {
               href={link.href}
               className={cn(
                 'text-[11.5px] font-semibold tracking-[0.15em] uppercase transition-colors duration-200',
-                dark ? 'text-lx-stone hover:text-lx-ink' : 'text-white/95 hover:text-white',
+                dark ? 'text-lx-stone hover:text-lx-ink' : 'text-white/95 hover:text-white drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)]',
               )}
             >
               {link.label}

@@ -1,5 +1,10 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
-  <rect width="32" height="32" rx="6" fill="#ffffff"/>
-  <text x="6" y="24" font-family="Arial Black, sans-serif"
-    font-weight="900" font-size="22" fill="#C41230">L</text>
+  <rect width="32" height="32" rx="8" fill="#ffffff"/>
+  <rect width="32" height="32" rx="8" fill="#C41230" opacity="0.08"/>
+  <text x="50%" y="73%"
+    font-family="Arial Black, sans-serif"
+    font-weight="900"
+    font-size="20"
+    fill="#C41230"
+    text-anchor="middle">L</text>
 </svg>
