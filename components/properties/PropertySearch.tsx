@@ -316,9 +316,9 @@ export default function PropertySearch({ totalCount }: Props) {
 
   // Grupos prioritarios de barrios — agrupan variantes bajo una sola etiqueta
   const PRIORITY_GROUPS = [
-    { label: 'Palermo',  matches: ['Palermo', 'Palermo Soho', 'Palermo Hollywood', 'Palermo Chico'] },
-    { label: 'Belgrano', matches: ['Belgrano', 'Belgrano C', 'Belgrano R', 'Belgrano Barrancas'] },
-    { label: 'Nuñez',   matches: ['Nuñez'] },
+    { label: 'Palermo',  matches: ['Palermo', 'Palermo Soho', 'Palermo Hollywood', 'Palermo Chico', 'Palermo Botánico', 'Las Cañitas', 'Palermo Nuevo'] },
+    { label: 'Belgrano', matches: ['Belgrano', 'Belgrano C', 'Belgrano R', 'Belgrano Barrancas', 'Barrancas de Belgrano'] },
+    { label: 'Núñez',   matches: ['Núñez', 'Nuñez'] },
     { label: 'Recoleta', matches: ['Recoleta'] },
   ]
   // Todos los nombres que pertenecen a algún grupo prioritario

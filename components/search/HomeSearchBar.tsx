@@ -30,9 +30,9 @@ const TYPES = [
 ]
 
 const PRIORITY_GROUPS = [
-  { label: 'Palermo',  matches: ['Palermo', 'Palermo Soho', 'Palermo Hollywood', 'Palermo Chico'] },
-  { label: 'Belgrano', matches: ['Belgrano', 'Belgrano C', 'Belgrano R', 'Belgrano Barrancas'] },
-  { label: 'Nuñez',   matches: ['Nuñez'] },
+  { label: 'Palermo',  matches: ['Palermo', 'Palermo Soho', 'Palermo Hollywood', 'Palermo Chico', 'Palermo Botánico', 'Las Cañitas', 'Palermo Nuevo'] },
+  { label: 'Belgrano', matches: ['Belgrano', 'Belgrano C', 'Belgrano R', 'Belgrano Barrancas', 'Barrancas de Belgrano'] },
+  { label: 'Núñez',   matches: ['Núñez', 'Nuñez'] },
   { label: 'Recoleta', matches: ['Recoleta'] },
 ]
 const ALL_PRIORITY_NAMES = PRIORITY_GROUPS.flatMap((g) => g.matches)

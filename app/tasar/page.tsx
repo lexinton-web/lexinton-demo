@@ -39,10 +39,7 @@ export default function TasarPage() {
       {/* ── 5. DIFUSIÓN TOTAL ────────────────────────── */}
       <DifusionTotalSection />
 
-      {/* ── 6. STAT 83% ──────────────────────────────── */}
-      <StatHighlight />
-
-      {/* ── 7. FORMULARIO ────────────────────────────── */}
+      {/* ── 6. FORMULARIO ────────────────────────────── */}
       <section className="py-24 bg-[#f5f5f5]">
         <div className="max-w-xl mx-auto px-6">
           <div className="text-center mb-10">
@@ -66,6 +63,9 @@ export default function TasarPage() {
           </div>
         </div>
       </section>
+
+      {/* ── 7. STAT 83% ──────────────────────────────── */}
+      <StatHighlight />
 
       {/* ── 8. SEO POR BARRIOS ───────────────────────── */}
       <SEOBarrios />
