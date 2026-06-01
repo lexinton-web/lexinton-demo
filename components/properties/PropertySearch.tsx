@@ -221,6 +221,20 @@ export default function PropertySearch({ totalCount }: Props) {
     maxSurface:   sp.get('maxSurface')    ?? '',
   }
 
+  // Multi-barrio: parse comma-separated location IDs from URL
+  const selectedIds: number[] = cur.location
+    ? cur.location.split(',').map(Number).filter(Boolean)
+    : []
+
+  function locationNameById(id: number): string {
+    return locations.find(l => l.id === id)?.name ?? String(id)
+  }
+
+  // Pre-load locations on mount if barrios are already in URL
+  useEffect(() => {
+    if (selectedIds.length > 0) loadLocations()
+  }, [cur.location]) // eslint-disable-line react-hooks/exhaustive-deps
+
   // Draft states
   const [dMin,     setDMin]     = useState(cur.minPrice)
   const [dMax,     setDMax]     = useState(cur.maxPrice)
@@ -303,7 +317,19 @@ export default function PropertySearch({ totalCount }: Props) {
   type ChipDef = { key: string; label: string; clear: Record<string, string> }
   const chips: ChipDef[] = []
   if (cur.operation)    chips.push({ key: 'op',   label: cur.operation === 'Sale' ? 'Comprar' : cur.operation === 'Rent' ? 'Alquilar' : 'Temporal', clear: { operation: '' } })
-  if (cur.locationName) chips.push({ key: 'loc',  label: cur.locationName,                                  clear: { location: '', location_name: '' } })
+  for (const id of selectedIds) {
+    const name = locationNameById(id)
+    if (name) {
+      const remainingIds = selectedIds.filter(i => i !== id)
+      chips.push({
+        key: `loc-${id}`,
+        label: name,
+        clear: remainingIds.length > 0
+          ? { location: remainingIds.join(','), location_name: remainingIds.map(i => locationNameById(i)).filter(Boolean).join(', ') }
+          : { location: '', location_name: '' },
+      })
+    }
+  }
   if (cur.type)         chips.push({ key: 'type', label: TYPE_LABEL[cur.type] ?? cur.type,                 clear: { type: '' } })
   if (cur.minRooms)     chips.push({ key: 'rmb',  label: `${cur.minRooms}+ amb`,                           clear: { minRooms: '' } })
   if (hasPrice)         chips.push({ key: 'prc',  label: priceLabel,                                        clear: { minPrice: '', maxPrice: '', currency: '' } })
@@ -344,11 +370,14 @@ export default function PropertySearch({ totalCount }: Props) {
   }
   // El location param es "active" para este grupo si la location_name coincide con el label
   function groupIsActive(group: typeof PRIORITY_GROUPS[0]) {
-    return cur.locationName === group.label
+    const ids = groupLocationIds(group)
+    return ids.length > 0 && ids.every(id => selectedIds.includes(id))
   }
   function selectGroup(group: typeof PRIORITY_GROUPS[0]) {
     const ids = groupLocationIds(group)
-    push({ location: ids.join(','), location_name: group.label })
+    const merged = Array.from(new Set([...selectedIds, ...ids]))
+    const names = merged.map(id => locationNameById(id)).filter(Boolean)
+    push({ location: merged.join(','), location_name: names.join(', ') })
     setBarrioQ(''); setOpenDrop(null)
   }
 
@@ -366,8 +395,14 @@ export default function PropertySearch({ totalCount }: Props) {
             {/* Barrio */}
             <div ref={barrioRef} className="relative shrink-0">
               <PillBtn
-                label={cur.locationName || 'Barrio o zona'}
-                active={!!cur.location}
+                label={
+                  selectedIds.length === 0
+                    ? 'Barrio o zona'
+                    : selectedIds.length === 1
+                      ? locationNameById(selectedIds[0])
+                      : `${selectedIds.length} barrios`
+                }
+                active={selectedIds.length > 0}
                 open={openDrop === 'barrio'}
                 onClick={() => toggle('barrio')}
               />
@@ -387,7 +422,7 @@ export default function PropertySearch({ totalCount }: Props) {
                   </div>
                   <div className="max-h-56 overflow-y-auto">
                     {locLoading && <p className="text-[12px] text-gray-400 text-center py-4">Cargando barrios...</p>}
-                    {!locLoading && cur.location && (
+                    {!locLoading && selectedIds.length > 0 && (
                       <button type="button"
                         onClick={() => { push({ location: '', location_name: '' }); setBarrioQ(''); setOpenDrop(null) }}
                         className="w-full text-left px-3 py-2 text-[12.5px] text-[#C41230] hover:bg-red-50 rounded-lg transition-colors mb-1"
@@ -415,11 +450,16 @@ export default function PropertySearch({ totalCount }: Props) {
                     {(barrioQ ? filteredLocs : restLocs).map((l) => (
                       <button key={l.id} type="button"
                         onClick={() => {
-                          push({ location: String(l.id), location_name: l.name })
+                          const id = l.id
+                          const newIds = selectedIds.includes(id)
+                            ? selectedIds.filter(i => i !== id)
+                            : [...selectedIds, id]
+                          const names = newIds.map(i => locationNameById(i)).filter(Boolean)
+                          push({ location: newIds.join(','), location_name: names.join(', ') })
                           setBarrioQ(''); setOpenDrop(null)
                         }}
                         className={`w-full text-left px-3 py-2 text-[12.5px] rounded-lg transition-colors ${
-                          cur.location === String(l.id)
+                          selectedIds.includes(l.id)
                             ? 'bg-red-50 text-[#C41230] font-semibold'
                             : 'text-gray-700 hover:bg-gray-50'
                         }`}
@@ -869,9 +909,17 @@ export default function PropertySearch({ totalCount }: Props) {
                       {(barrioQ ? locations.filter((l) => l.name.toLowerCase().includes(barrioQ.toLowerCase())) : locations)
                         .slice(0, 20).map((l) => (
                           <button key={l.id} type="button"
-                            onClick={() => { push({ location: String(l.id), location_name: l.name }); setBarrioQ('') }}
+                            onClick={() => {
+                              const id = l.id
+                              const newIds = selectedIds.includes(id)
+                                ? selectedIds.filter(i => i !== id)
+                                : [...selectedIds, id]
+                              const names = newIds.map(i => locationNameById(i)).filter(Boolean)
+                              push({ location: newIds.join(','), location_name: names.join(', ') })
+                              setBarrioQ('')
+                            }}
                             className={`w-full text-left px-3 py-2 text-[12.5px] border-b border-gray-50 last:border-0 transition-colors ${
-                              cur.location === String(l.id) ? 'text-[#C41230] bg-red-50 font-medium' : 'text-gray-700 hover:bg-gray-50'
+                              selectedIds.includes(l.id) ? 'text-[#C41230] bg-red-50 font-medium' : 'text-gray-700 hover:bg-gray-50'
                             }`}
                           >
                             {l.name}
