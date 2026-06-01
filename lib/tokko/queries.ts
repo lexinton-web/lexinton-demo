@@ -50,6 +50,18 @@ export async function getProperties(
   filters: PropertyFilters = {},
   revalidate = 300
 ): Promise<{ properties: TokkoProperty[]; total: number }> {
+  try {
+  return await _getProperties(filters, revalidate)
+  } catch (err) {
+    console.error('[getProperties] Tokko fetch failed, returning empty:', err)
+    return { properties: [], total: 0 }
+  }
+}
+
+async function _getProperties(
+  filters: PropertyFilters = {},
+  revalidate = 300
+): Promise<{ properties: TokkoProperty[]; total: number }> {
   const {
     operation,
     propertyType,
@@ -77,45 +89,32 @@ export async function getProperties(
 
   // Traer TODAS las propiedades para filtrar server-side.
   // Tokko no filtra correctamente por operación, así que hacemos
-  // múltiples fetches de 100 y combinamos.
-  const needsFullFetch = !!(operation || propertyType || minRooms || minPrice || maxPrice)
+  // Fetch en lotes de 35 para que cada respuesta quede bajo el límite de 2MB
+  // del data cache de Next.js. Con limit=100, las respuestas son 3-4MB y
+  // Next.js no las cachea → cada request golpea Tokko en frío.
+  // 35 props × ~44KB/prop = ~1.54MB → bajo el límite de 2MB del data cache
+  const BATCH = 35
 
-  let allObjects: TokkoProperty[] = []
+  const r1 = await tokkoFetch<TokkoPropertyListResponse>(
+    'property',
+    { limit: BATCH, offset: 0, ...apiParams },
+    revalidate
+  )
+  const totalInApi = r1.meta?.total_count ?? r1.objects.length
+  let allObjects: TokkoProperty[] = [...r1.objects]
 
-  if (needsFullFetch) {
-    // Fetch batch 1
-    const r1 = await tokkoFetch<TokkoPropertyListResponse>(
-      'property',
-      { limit: 100, offset: 0, ...apiParams },
-      revalidate
-    )
-    allObjects = r1.objects
-    const totalInApi = r1.meta?.total_count ?? r1.objects.length
-    // Fetch remaining batches if needed
-    if (totalInApi > 100) {
-      const r2 = await tokkoFetch<TokkoPropertyListResponse>(
+  // Fetch lotes adicionales en secuencia para no saturar la API de Tokko.
+  // Con respuestas < 2MB, Next.js cachea cada lote → solo el primer request
+  // en frío es lento; los siguientes 5 min se sirven desde cache.
+  if (totalInApi > BATCH) {
+    const remaining = Math.ceil((totalInApi - BATCH) / BATCH)
+    for (let i = 1; i <= remaining; i++) {
+      const batch = await tokkoFetch<TokkoPropertyListResponse>(
         'property',
-        { limit: 100, offset: 100, ...apiParams },
+        { limit: BATCH, offset: BATCH * i, ...apiParams },
         revalidate
       )
-      allObjects = [...allObjects, ...r2.objects]
-    }
-  } else {
-    // No filters — just fetch the page we need, but still get all for total count
-    const r1 = await tokkoFetch<TokkoPropertyListResponse>(
-      'property',
-      { limit: 100, offset: 0, ...apiParams },
-      revalidate
-    )
-    allObjects = r1.objects
-    const totalInApi = r1.meta?.total_count ?? r1.objects.length
-    if (totalInApi > 100) {
-      const r2 = await tokkoFetch<TokkoPropertyListResponse>(
-        'property',
-        { limit: 100, offset: 100, ...apiParams },
-        revalidate
-      )
-      allObjects = [...allObjects, ...r2.objects]
+      allObjects = [...allObjects, ...(batch?.objects ?? [])]
     }
   }
 
@@ -191,7 +190,7 @@ export async function getProperties(
   const paginated = filtered.slice(offset, offset + limit)
 
   return { properties: paginated, total }
-}
+} // end _getProperties
 
 /**
  * Obtiene el detalle completo de una propiedad por ID.
@@ -246,21 +245,25 @@ export async function getSimilarProperties(
   limit = 3
 ): Promise<TokkoProperty[]> {
   try {
-    // Fetch enough properties to find good matches
+    // Fetch en lotes de 35 (< 2MB c/u → cacheable por Next.js)
+    const SIM_BATCH = 35
     const r1 = await tokkoFetch<TokkoPropertyListResponse>(
       'property',
-      { limit: 100, offset: 0 },
+      { limit: SIM_BATCH, offset: 0 },
       300
     )
-    let allProps = r1.objects
     const totalInApi = r1.meta?.total_count ?? r1.objects.length
-    if (totalInApi > 100) {
-      const r2 = await tokkoFetch<TokkoPropertyListResponse>(
-        'property',
-        { limit: 100, offset: 100 },
-        300
-      )
-      allProps = [...allProps, ...r2.objects]
+    let allProps = [...r1.objects]
+    if (totalInApi > SIM_BATCH) {
+      const remaining = Math.ceil((totalInApi - SIM_BATCH) / SIM_BATCH)
+      for (let i = 1; i <= remaining; i++) {
+        const batch = await tokkoFetch<TokkoPropertyListResponse>(
+          'property',
+          { limit: SIM_BATCH, offset: SIM_BATCH * i },
+          300
+        )
+        allProps = [...allProps, ...(batch?.objects ?? [])]
+      }
     }
 
     // Exclude the current property
@@ -321,20 +324,24 @@ export async function getSimilarProperties(
  * Trae todas las propiedades para pre-renderizar las más visitadas.
  */
 export async function getAllPropertyIds(): Promise<number[]> {
+  const IDS_BATCH = 35
   const r1 = await tokkoFetch<TokkoPropertyListResponse>(
     'property',
-    { limit: 100, offset: 0 },
+    { limit: IDS_BATCH, offset: 0 },
     3600
   )
-  const ids = r1.objects.map((p) => p.id)
   const total = r1.meta?.total_count ?? r1.objects.length
-  if (total > 100) {
-    const r2 = await tokkoFetch<TokkoPropertyListResponse>(
-      'property',
-      { limit: 100, offset: 100 },
-      3600
-    )
-    ids.push(...r2.objects.map((p) => p.id))
+  let ids = r1.objects.map((p) => p.id)
+  if (total > IDS_BATCH) {
+    const remaining = Math.ceil((total - IDS_BATCH) / IDS_BATCH)
+    for (let i = 1; i <= remaining; i++) {
+      const batch = await tokkoFetch<TokkoPropertyListResponse>(
+        'property',
+        { limit: IDS_BATCH, offset: IDS_BATCH * i },
+        3600
+      )
+      ids = [...ids, ...(batch?.objects.map((p) => p.id) ?? [])]
+    }
   }
   return ids
 }
@@ -378,20 +385,24 @@ export async function getLocations(stateId = CABA_STATE_ID) {
  * Cache de 10 minutos.
  */
 export async function getPropertyLocations() {
+  const LOC_BATCH = 35
   const r1 = await tokkoFetch<TokkoPropertyListResponse>(
     'property',
-    { limit: 100, offset: 0 },
+    { limit: LOC_BATCH, offset: 0 },
     600
   )
-  let allObjects = r1.objects
   const total = r1.meta?.total_count ?? r1.objects.length
-  if (total > 100) {
-    const r2 = await tokkoFetch<TokkoPropertyListResponse>(
-      'property',
-      { limit: 100, offset: 100 },
-      600
-    )
-    allObjects = [...allObjects, ...r2.objects]
+  let allObjects = [...r1.objects]
+  if (total > LOC_BATCH) {
+    const remaining = Math.ceil((total - LOC_BATCH) / LOC_BATCH)
+    for (let i = 1; i <= remaining; i++) {
+      const batch = await tokkoFetch<TokkoPropertyListResponse>(
+        'property',
+        { limit: LOC_BATCH, offset: LOC_BATCH * i },
+        600
+      )
+      allObjects = [...allObjects, ...(batch?.objects ?? [])]
+    }
   }
 
   // Extract unique non-null locations

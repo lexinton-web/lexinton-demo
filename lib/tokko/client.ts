@@ -45,12 +45,20 @@ export async function tokkoFetch<T>(
 
   const url = `${TOKKO_BASE_URL}/${endpoint}/?${searchParams}`
 
-  const res = await fetch(url, {
+  let res = await fetch(url, {
     next: { revalidate },
-    headers: {
-      'Accept': 'application/json',
-    },
+    headers: { 'Accept': 'application/json' },
   })
+
+  // Retry once on 429 — wait for Retry-After header or 2s
+  if (res.status === 429) {
+    const retryAfter = parseInt(res.headers.get('Retry-After') ?? '2', 10)
+    await new Promise((r) => setTimeout(r, Math.min(retryAfter, 5) * 1000))
+    res = await fetch(url, {
+      next: { revalidate },
+      headers: { 'Accept': 'application/json' },
+    })
+  }
 
   if (!res.ok) {
     // 404 → el recurso no existe (propiedad archivada, ID incorrecto)

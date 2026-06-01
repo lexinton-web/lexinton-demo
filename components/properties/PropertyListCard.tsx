@@ -71,7 +71,7 @@ export function PropertyListCard({ property, index = 0, basePath = '/propiedades
                 fill
                 className="object-cover"
                 sizes="(max-width: 768px) 100vw, 320px"
-                priority={index < 4}
+                priority={index < 2}
                 onError={(e) => {
                   const target = e.currentTarget
                   target.style.display = 'none'
