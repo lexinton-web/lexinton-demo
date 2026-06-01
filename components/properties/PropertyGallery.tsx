@@ -132,7 +132,8 @@ export function PropertyGallery({ photos, title }: Props) {
                   alt={`${title} - foto ${photoIndex + 1}`}
                   fill
                   className="object-cover group-hover:scale-[1.03] transition-transform duration-400"
-                  sizes="20vw"
+                  sizes="(max-width: 1280px) 25vw, 20vw"
+                  onError={(e) => { e.currentTarget.style.display = 'none' }}
                 />
                 <div className="absolute inset-0 bg-black/0 group-hover:bg-black/15 transition-colors duration-300" />
                 {isLast && (

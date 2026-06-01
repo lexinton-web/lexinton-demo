@@ -18,10 +18,11 @@ import { ContactModal } from './ContactModal'
 
 interface Props {
   property: TokkoProperty
+  index?: number
   basePath?: string
 }
 
-export function PropertyListCard({ property, basePath = '/propiedades' }: Props) {
+export function PropertyListCard({ property, index = 0, basePath = '/propiedades' }: Props) {
   const [currentPhoto, setCurrentPhoto] = useState(0)
   const [showContact, setShowContact] = useState(false)
 
@@ -63,13 +64,19 @@ export function PropertyListCard({ property, basePath = '/propiedades' }: Props)
           flex-shrink-0 overflow-hidden bg-gray-100 group/img">
 
           <Link href={href} className="block w-full h-full min-h-[220px] md:min-h-[240px]">
-            {photos.length > 0 ? (
+            {photos.length > 0 && photos[currentPhoto]?.image ? (
               <Image
-                src={photos[currentPhoto]?.image}
+                src={photos[currentPhoto].image}
                 alt={property.fake_address || property.address || ''}
                 fill
                 className="object-cover"
-                sizes="320px"
+                sizes="(max-width: 768px) 100vw, 320px"
+                priority={index < 4}
+                onError={(e) => {
+                  const target = e.currentTarget
+                  target.style.display = 'none'
+                  target.parentElement?.classList.add('bg-gray-100')
+                }}
               />
             ) : (
               <div className="w-full h-full flex items-center justify-center text-gray-300 text-sm bg-gray-50">

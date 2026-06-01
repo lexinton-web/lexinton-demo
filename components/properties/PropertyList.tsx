@@ -8,8 +8,8 @@ interface Props {
 export function PropertyList({ properties }: Props) {
   return (
     <div className="flex flex-col gap-4">
-      {properties.map(property => (
-        <PropertyListCard key={property.id} property={property} />
+      {properties.map((property, i) => (
+        <PropertyListCard key={property.id} property={property} index={i} />
       ))}
     </div>
   )

@@ -200,6 +200,7 @@ export function getSortedPhotos(property: TokkoProperty): TokkoPhoto[] {
   if (!property.photos || property.photos.length === 0) return []
 
   return [...property.photos]
+    .filter((p) => p.image && typeof p.image === 'string')
     .sort((a, b) => {
       // Planos siempre al final
       if (a.is_blueprint && !b.is_blueprint) return 1
