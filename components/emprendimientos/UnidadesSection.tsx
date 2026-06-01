@@ -51,6 +51,7 @@ function UnitCard({ unit }: { unit: TokkoUnit }) {
                 fill
                 className="object-cover hover:scale-105 transition-transform duration-500"
                 sizes="(max-width: 640px) 50vw, 25vw"
+                unoptimized
               />
             ) : (
               <div className="w-full h-full flex items-center justify-center text-gray-300">

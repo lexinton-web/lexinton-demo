@@ -88,6 +88,7 @@ export default function PropertyCard({
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
               className="object-cover transition-transform duration-[700ms] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.04]"
               priority={priority}
+              unoptimized
             />
           ) : (
             <div className="absolute inset-0 flex items-center justify-center bg-lx-parchment">

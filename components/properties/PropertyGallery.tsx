@@ -45,6 +45,7 @@ export function PropertyGallery({ photos, title }: Props) {
             className="object-cover"
             sizes="100vw"
             priority={mobileIndex === 0}
+            unoptimized
           />
           <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/20 pointer-events-none" />
         </div>
@@ -110,6 +111,7 @@ export function PropertyGallery({ photos, title }: Props) {
             className="object-cover group-hover:scale-[1.02] transition-transform duration-500"
             priority
             sizes="60vw"
+            unoptimized
           />
           <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
         </div>
@@ -134,6 +136,7 @@ export function PropertyGallery({ photos, title }: Props) {
                   className="object-cover group-hover:scale-[1.03] transition-transform duration-400"
                   sizes="(max-width: 1280px) 25vw, 20vw"
                   priority
+                  unoptimized
                   onError={(e) => { e.currentTarget.style.display = 'none' }}
                 />
                 <div className="absolute inset-0 bg-black/0 group-hover:bg-black/15 transition-colors duration-300" />

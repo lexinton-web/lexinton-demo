@@ -85,6 +85,7 @@ export function DevelopmentsCarousel({ developments }: Props) {
             alt=""
             fill
             className="object-cover blur-2xl scale-110"
+            unoptimized
           />
         )}
       </div>
@@ -226,6 +227,7 @@ function SlideCard({ dev, featured = false }: { dev: TokkoDevelopment; featured?
           className="object-cover"
           sizes={featured ? '44vw' : '28vw'}
           priority={featured}
+          unoptimized
         />
       )}
 
