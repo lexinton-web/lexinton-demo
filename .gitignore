@@ -33,6 +33,7 @@ yarn-error.log*
 
 # private docs (contain real API keys)
 docs/VERCEL_DEPLOY_GUIDE.md
+docs/TRANSFER_BACKUP.md
 
 # vercel
 .vercel
