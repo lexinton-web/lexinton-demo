@@ -13,6 +13,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { submitPropertyLead } from '@/lib/tokko/queries'
 import { createLeadsClient, ORG_ID } from '@/lib/supabase-leads'
+import { classifyPhone } from '@/lib/phone'
 
 export const dynamic = 'force-dynamic'
 export async function POST(req: NextRequest) {
@@ -75,14 +76,7 @@ export async function POST(req: NextRequest) {
 
 // ── Supabase capture ──────────────────────────────────────────────────────────
 
-function normalizePhone(phone: string): string {
-  const digits = phone.replace(/\D/g, '')
-  if (digits.startsWith('549')) return '+' + digits
-  if (digits.startsWith('54')) return '+549' + digits.slice(2)
-  if (digits.startsWith('0')) return '+549' + digits.slice(1)
-  if (digits.length === 10) return '+549' + digits
-  return '+549' + digits
-}
+// Teléfonos: regla única del sistema en lib/phone.ts (copia de lexinton-panel).
 
 async function captureContactInSupabase(data: {
   name: string
@@ -94,7 +88,9 @@ async function captureContactInSupabase(data: {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const supabase = createLeadsClient() as any
   const { name, email, phone, message, propertyId } = data
-  const phoneNormalized = phone ? normalizePhone(phone) : null
+  // +549… si es argentino, +país si vino explícito; lo dudoso (ej. "34 616893502")
+  // NO se normaliza: nunca se le inventa la característica argentina.
+  const phoneNormalized = phone ? classifyPhone(String(phone)).normalized : null
 
   // Dedup: mismo email + misma propiedad + 30 min
   const { data: existingContact } = await supabase
@@ -139,7 +135,7 @@ async function captureContactInSupabase(data: {
         full_name: name.slice(0, 100),
         email,
         phone: phone ? phone.slice(0, 50) : null,
-        phone_normalized: phoneNormalized,
+        ...(phoneNormalized ? { phone_normalized: phoneNormalized } : {}),
       },
       { onConflict: 'org_id,email', ignoreDuplicates: false }
     )

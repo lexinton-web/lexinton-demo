@@ -27,6 +27,7 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { createLeadsClient, ORG_ID } from '@/lib/supabase-leads'
+import { classifyPhone } from '@/lib/phone'
 
 export const dynamic = 'force-dynamic'
 
@@ -34,14 +35,7 @@ const TOKKO_API_KEY = process.env.TOKKO_API_KEY
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
-function normalizePhone(phone: string): string {
-  const digits = phone.replace(/\D/g, '')
-  if (digits.startsWith('549')) return '+' + digits
-  if (digits.startsWith('54')) return '+549' + digits.slice(2)
-  if (digits.startsWith('0')) return '+549' + digits.slice(1)
-  if (digits.length === 10) return '+549' + digits
-  return '+549' + digits
-}
+// Teléfonos: regla única del sistema en lib/phone.ts (copia de lexinton-panel).
 
 // ── Handler ───────────────────────────────────────────────────────────────────
 
@@ -174,8 +168,9 @@ async function captureLeadInSupabase(data: {
   const supabase = createLeadsClient() as any
   const { nombre, email, telefono, mensaje, tipo, propiedad_id,
           operation, page_url, form_type, raw_body } = data
-  // normalizePhone handles prefixed strings like "+54 1134567890" — strip non-digits first
-  const phoneNormalized = telefono ? normalizePhone(telefono) : null
+  // +549… si es argentino, +país si vino explícito; lo dudoso (ej. "34 616893502")
+  // NO se normaliza: nunca se le inventa la característica argentina.
+  const phoneNormalized = telefono ? classifyPhone(String(telefono)).normalized : null
 
   // Dedup: mismo email + misma propiedad + últimos 30 minutos
   const { data: existingContact } = await supabase
@@ -223,7 +218,7 @@ async function captureLeadInSupabase(data: {
         full_name: nombre.slice(0, 100),
         email,
         phone: telefono ? String(telefono).slice(0, 50) : null,
-        phone_normalized: phoneNormalized,
+        ...(phoneNormalized ? { phone_normalized: phoneNormalized } : {}),
       },
       { onConflict: 'org_id,email', ignoreDuplicates: false }
     )
