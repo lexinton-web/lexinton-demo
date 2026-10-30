@@ -6,7 +6,7 @@
  * Los datos se adaptan con developmentToProperty().
  */
 
-import { notFound } from 'next/navigation'
+import { notFound, permanentRedirect } from 'next/navigation'
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { getDevelopmentById, getDevelopments, getDevelopmentUnits } from '@/lib/tokko/queries'
@@ -14,8 +14,9 @@ import {
   developmentToProperty,
   getSortedPhotos, getPropertyTypeLabel,
   cleanDescription, getDisplayTags, getCoordinates,
-  getNeighborhood, parseSlugId, makePropertySlug,
+  getNeighborhood, parseSlugIdSafe, makeDevelopmentSlug,
 } from '@/lib/tokko/utils'
+import { pageMetadata } from '@/lib/seo'
 import { calcDevelopmentStats, formatRange, formatStatPrice } from '@/lib/tokko/development-stats'
 import { PropertyGallery } from '@/components/properties/PropertyGallery'
 import PropertyDetailClient from '@/components/properties/PropertyDetailClient'
@@ -37,34 +38,38 @@ interface PageProps {
 /* Static params */
 export async function generateStaticParams() {
   const devs = await getDevelopments()
-  return devs.map((d) => ({ id: makePropertySlug(d.id, d.fake_address || d.address || d.name || '') }))
+  return devs.map((d) => ({ id: makeDevelopmentSlug(d) }))
 }
 
 /* Metadata */
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const dev = await getDevelopmentById(parseSlugId(params.id))
+  const devId = parseSlugIdSafe(params.id)
+  const dev = devId ? await getDevelopmentById(devId) : null
   if (!dev) return { title: 'Emprendimiento | Lexinton' }
   const title = dev.publication_title || dev.name
-  const description = cleanDescription(dev.description ?? '').slice(0, 155)
+  const description =
+    cleanDescription(dev.description ?? '').slice(0, 155) ||
+    `Emprendimiento ${title} en ${dev.location?.name ?? 'Buenos Aires'}.`
   const photos = Array.isArray(dev.photos) ? dev.photos : []
   const cover = photos[0]?.image ?? null
-  return {
-    title: `${title} . Emprendimiento | Lexinton`,
-    description: description || `Emprendimiento ${title} en ${dev.location?.name ?? 'Buenos Aires'}.`,
-    alternates: { canonical: `https://lexinton.com.ar/emprendimientos/${params.id}` },
-    openGraph: {
-      title: `${title} - Lexinton Propiedades`,
-      description: description || '',
-      images: cover ? [{ url: cover, alt: title }] : [],
-      type: 'website',
-    },
-  }
+  return pageMetadata({
+    title: `${title} · Emprendimiento | Lexinton`,
+    socialTitle: `${title} - Lexinton Propiedades`,
+    description,
+    path: `/emprendimientos/${makeDevelopmentSlug(dev)}`,
+    image: cover ? { url: cover, alt: title } : undefined,
+  })
 }
 
 /* Page */
 export default async function EmprendimientoDetallePage({ params }: PageProps) {
-  const dev = await getDevelopmentById(parseSlugId(params.id))
+  const devId = parseSlugIdSafe(params.id)
+  const dev = devId ? await getDevelopmentById(devId) : null
   if (!dev) notFound()
+
+  // Una sola URL por emprendimiento: /emprendimientos/32374 → slug canónico
+  const canonicalSlug = makeDevelopmentSlug(dev)
+  if (params.id !== canonicalSlug) permanentRedirect(`/emprendimientos/${canonicalSlug}`)
 
   // Fetch units in parallel
   const units = await getDevelopmentUnits(dev.id)

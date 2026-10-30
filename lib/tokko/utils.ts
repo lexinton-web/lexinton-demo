@@ -405,6 +405,29 @@ export function makePropertySlug(id: number, address: string): string {
 }
 
 /**
+ * Pasa una dirección de Tokko (suele venir en mayúsculas) a formato título.
+ * @example formatAddressTitle("NUÑEZ 3100") → "Nuñez 3100"
+ * @example formatAddressTitle("LIMA al 900") → "Lima al 900"
+ */
+export function formatAddressTitle(address: string): string {
+  const lowerWords = new Set(['al', 'de', 'del', 'la', 'el', 'y', 'e'])
+  return address
+    .toLowerCase()
+    .split(/\s+/)
+    .filter(Boolean)
+    .map((w, i) => (i > 0 && lowerWords.has(w) ? w : w.charAt(0).toUpperCase() + w.slice(1)))
+    .join(' ')
+}
+
+/**
+ * Slug canónico de un emprendimiento. Usa la misma dirección que
+ * developmentToProperty(), que es la que muestran las cards del listado.
+ */
+export function makeDevelopmentSlug(dev: Pick<TokkoDevelopment, 'id' | 'address' | 'fake_address' | 'name'>): string {
+  return makePropertySlug(dev.id, dev.address || dev.fake_address || dev.name || '')
+}
+
+/**
  * Extrae el ID numérico de un slug.
  * @example parseSlugId("19554-tamborini-jose") → 19554
  */
@@ -412,6 +435,12 @@ export function parseSlugId(slug: string): number {
   const id = parseInt(slug.split('-')[0], 10)
   if (isNaN(id)) throw new Error(`Slug inválido: ${slug}`)
   return id
+}
+
+/** Igual que parseSlugId pero devuelve null en vez de tirar error (para responder 404, no 500). */
+export function parseSlugIdSafe(slug: string): number | null {
+  const id = parseInt(slug.split('-')[0], 10)
+  return isNaN(id) ? null : id
 }
 
 // ─── Tipo ─────────────────────────────────────────────────────────────────────

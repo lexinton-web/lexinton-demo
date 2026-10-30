@@ -7,6 +7,7 @@ import { SocialFollowBar } from '@/components/ui/SocialFollowBar'
 import MobileSticky from '@/components/MobileSticky'
 import { WhatsAppButton } from '@/components/WhatsAppButton'
 import { CliengoScript } from '@/components/CliengoScript'
+import { DEFAULT_OG_IMAGE, HOME_DESCRIPTION, HOME_TITLE, SITE_NAME, SITE_URL } from '@/lib/site'
 
 const inter = Inter({
   subsets: ['latin'],
@@ -23,9 +24,21 @@ const instrumentSerif = Instrument_Serif({
 })
 
 export const metadata: Metadata = {
-  title: 'Lexinton Propiedades — Especialistas en operaciones inmobiliarias en Palermo',
-  description:
-    'Coordinamos venta, compra y tasación con una estrategia clara, tiempos sincronizados y acompañamiento experto. 20 años de trayectoria en CABA y zona norte.',
+  metadataBase: new URL(SITE_URL),
+  title: HOME_TITLE,
+  description: HOME_DESCRIPTION,
+  // Defaults para redes sin url: el canonical y og:url los define cada página
+  // (ver lib/seo.ts), así ninguna hereda los del home.
+  openGraph: {
+    siteName: SITE_NAME,
+    locale: 'es_AR',
+    type: 'website',
+    images: [DEFAULT_OG_IMAGE],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    images: [DEFAULT_OG_IMAGE.url],
+  },
   keywords: [
     'inmobiliaria palermo',
     'operaciones simultáneas',
@@ -33,20 +46,11 @@ export const metadata: Metadata = {
     'tasación inmueble CABA',
     'Lexinton Propiedades',
   ].join(', '),
-  authors: [{ name: 'Lexinton Propiedades' }],
+  authors: [{ name: SITE_NAME }],
   icons: {
     icon: '/favicon.svg',
     shortcut: '/favicon.svg',
     apple: '/favicon.svg',
-  },
-  openGraph: {
-    title: 'Lexinton Propiedades — Especialistas en operaciones inmobiliarias',
-    description:
-      'Coordinamos venta, compra y tasación con estrategia clara y tiempos sincronizados. Palermo y zona norte.',
-    url: 'https://lexinton.com.ar',
-    siteName: 'Lexinton Propiedades',
-    locale: 'es_AR',
-    type: 'website',
   },
 }
 

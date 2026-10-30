@@ -3,18 +3,18 @@
  * Design system: SectionHeader, NumberedSteps, FeatureCard
  */
 
-import type { Metadata } from 'next'
+import { pageMetadata } from '@/lib/seo'
 import { ContactForm } from '@/components/properties/ContactForm'
 import PageHero from '@/components/PageHero'
 import SectionHeader from '@/components/ui/SectionHeader'
 import NumberedSteps from '@/components/ui/NumberedSteps'
 import FeatureCard from '@/components/ui/FeatureCard'
 
-export const metadata: Metadata = {
+export const metadata = pageMetadata({
   title: 'Quiero Vender mi Propiedad | Lexinton Propiedades',
   description: 'Vendé tu propiedad en Palermo, Belgrano o zona norte con el equipo de Lexinton.',
-  alternates: { canonical: 'https://lexinton.com.ar/quiero-vender' },
-}
+  path: '/quiero-vender',
+})
 
 const pasos = [
   { title: 'Tasación', description: 'Analizamos el valor real de mercado de tu propiedad con comparables reales, no fórmulas genéricas.' },

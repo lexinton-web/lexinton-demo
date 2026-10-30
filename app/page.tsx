@@ -2,6 +2,15 @@ import HeroSection from '@/components/HeroSection'
 import { DevelopmentsCarousel } from '@/components/DevelopmentsCarousel'
 import { getDevelopments } from '@/lib/tokko/queries'
 import dynamic from 'next/dynamic'
+import { HOME_DESCRIPTION, HOME_TITLE } from '@/lib/site'
+import { pageMetadata } from '@/lib/seo'
+
+export const metadata = pageMetadata({
+  title: HOME_TITLE,
+  socialTitle: 'Lexinton Propiedades — Especialistas en operaciones inmobiliarias',
+  description: HOME_DESCRIPTION,
+  path: '/',
+})
 
 // Off-screen sections — lazy loaded to defer Framer Motion initialization
 const TasacionCTA = dynamic(

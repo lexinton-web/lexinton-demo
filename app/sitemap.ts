@@ -3,84 +3,61 @@
  *
  * Incluye:
  * - Páginas estáticas principales
- * - Landings SEO
- * - Propiedades activas (hasta 100, ISR 1 hora)
+ * - Propiedades activas (con el mismo slug que declara su canonical)
+ * - Emprendimientos
  *
  * NO incluye:
  * - URLs con filtros (?operation=Sale, etc.) — están marcadas noindex
  * - /api/* — son route handlers, no páginas
+ *
+ * No se informa lastModified: Tokko no da fecha de última modificación y
+ * poner "ahora" en todas las URLs hace que Google ignore la señal.
  */
 
 import type { MetadataRoute } from 'next'
-import { getAllPropertyIds } from '@/lib/tokko/queries'
-import { makePropertySlug } from '@/lib/tokko/utils'
-
-const BASE_URL = 'https://lexinton.com.ar'
+import { getAllPropertyRefs, getDevelopments } from '@/lib/tokko/queries'
+import { makeDevelopmentSlug, makePropertySlug } from '@/lib/tokko/utils'
+import { absoluteUrl } from '@/lib/site'
 
 export const revalidate = 3600
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Páginas estáticas
   const staticPages: MetadataRoute.Sitemap = [
-    {
-      url: BASE_URL,
-      lastModified: new Date(),
-      changeFrequency: 'weekly',
-      priority: 1.0,
-    },
-    {
-      url: `${BASE_URL}/propiedades`,
-      lastModified: new Date(),
-      changeFrequency: 'daily',
-      priority: 0.9,
-    },
-    {
-      url: `${BASE_URL}/contacto`,
-      lastModified: new Date(),
-      changeFrequency: 'monthly',
-      priority: 0.7,
-    },
-    // Landings SEO — crear estas páginas en fases posteriores
-    {
-      url: `${BASE_URL}/inmobiliaria-en-palermo`,
-      lastModified: new Date(),
-      changeFrequency: 'monthly',
-      priority: 0.85,
-    },
-    {
-      url: `${BASE_URL}/tasacion-de-propiedades-en-palermo`,
-      lastModified: new Date(),
-      changeFrequency: 'monthly',
-      priority: 0.85,
-    },
-    {
-      url: `${BASE_URL}/vender-para-comprar`,
-      lastModified: new Date(),
-      changeFrequency: 'monthly',
-      priority: 0.8,
-    },
-    {
-      url: `${BASE_URL}/propiedades-en-palermo`,
-      lastModified: new Date(),
-      changeFrequency: 'daily',
-      priority: 0.8,
-    },
+    { url: absoluteUrl('/'), changeFrequency: 'weekly', priority: 1.0 },
+    { url: absoluteUrl('/propiedades'), changeFrequency: 'daily', priority: 0.9 },
+    { url: absoluteUrl('/tasar'), changeFrequency: 'monthly', priority: 0.85 },
+    { url: absoluteUrl('/quiero-vender'), changeFrequency: 'monthly', priority: 0.8 },
+    { url: absoluteUrl('/emprendimientos'), changeFrequency: 'weekly', priority: 0.8 },
+    { url: absoluteUrl('/inversor'), changeFrequency: 'monthly', priority: 0.7 },
+    { url: absoluteUrl('/contacto'), changeFrequency: 'monthly', priority: 0.7 },
   ]
 
   // Propiedades activas desde Tokko
   let propertyPages: MetadataRoute.Sitemap = []
   try {
-    const ids = await getAllPropertyIds()
-    propertyPages = ids.map((id) => ({
-      url: `${BASE_URL}/propiedades/${makePropertySlug(id, '')}`,
-      lastModified: new Date(),
+    const refs = await getAllPropertyRefs()
+    propertyPages = refs.map((p) => ({
+      url: absoluteUrl(`/propiedades/${makePropertySlug(p.id, p.address)}`),
       changeFrequency: 'weekly' as const,
       priority: 0.7,
     }))
   } catch {
     // Si la API falla, el sitemap se genera sin propiedades individuales
-    console.warn('[Sitemap] No se pudieron obtener IDs de propiedades')
+    console.warn('[Sitemap] No se pudieron obtener las propiedades')
   }
 
-  return [...staticPages, ...propertyPages]
+  let developmentPages: MetadataRoute.Sitemap = []
+  try {
+    const devs = await getDevelopments()
+    developmentPages = devs.map((d) => ({
+      url: absoluteUrl(`/emprendimientos/${makeDevelopmentSlug(d)}`),
+      changeFrequency: 'weekly' as const,
+      priority: 0.7,
+    }))
+  } catch {
+    console.warn('[Sitemap] No se pudieron obtener los emprendimientos')
+  }
+
+  return [...staticPages, ...developmentPages, ...propertyPages]
 }

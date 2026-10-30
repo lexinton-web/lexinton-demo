@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import Image from 'next/image'
 import Link from 'next/link'
 import type { TokkoDevelopment } from '@/lib/tokko/types'
+import { makeDevelopmentSlug } from '@/lib/tokko/utils'
 
 interface Props { developments: TokkoDevelopment[] }
 
@@ -142,7 +143,7 @@ export function DevelopmentsCarousel({ developments }: Props) {
                 onDragEnd={handleDragEnd}
                 className="absolute inset-0"
               >
-                <Link href={`/emprendimientos/${developments[current].id}`}>
+                <Link href={`/emprendimientos/${makeDevelopmentSlug(developments[current])}`}>
                   <SlideCard dev={developments[current]} featured />
                 </Link>
               </motion.div>

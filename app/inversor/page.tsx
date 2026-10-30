@@ -3,7 +3,7 @@
  * Design system: SectionHeader, NumberedSteps, FeatureCard, StatsCounter
  */
 
-import type { Metadata } from 'next'
+import { pageMetadata } from '@/lib/seo'
 import { ContactForm } from '@/components/properties/ContactForm'
 import PageHero from '@/components/PageHero'
 import SectionHeader from '@/components/ui/SectionHeader'
@@ -11,11 +11,11 @@ import NumberedSteps from '@/components/ui/NumberedSteps'
 import FeatureCard from '@/components/ui/FeatureCard'
 import StatsCounter from '@/components/ui/StatsCounter'
 
-export const metadata: Metadata = {
+export const metadata = pageMetadata({
   title: 'Inversión Inmobiliaria en Palermo | Lexinton Propiedades',
   description: 'Asesoramiento en inversión inmobiliaria en Palermo, Belgrano y zona norte. Rentabilidad, seguridad y 20 años de experiencia.',
-  alternates: { canonical: 'https://lexinton.com.ar/inversor' },
-}
+  path: '/inversor',
+})
 
 const razones = [
   { title: 'Dolarización natural', description: 'Los inmuebles en CABA se transan en USD. Tu capital queda protegido de la devaluación en pesos.' },

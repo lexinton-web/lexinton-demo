@@ -36,7 +36,7 @@ function UnitCard({ unit }: { unit: TokkoUnit }) {
   const bathrooms = unit.bathroom_amount
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const garages = (unit as any).garages as number | undefined
-  const href = `/propiedades/${makePropertySlug(unit.id, unit.fake_address || unit.address || '')}`
+  const href = `/propiedades/${makePropertySlug(unit.id, unit.address || '')}`
 
   return (
     <>

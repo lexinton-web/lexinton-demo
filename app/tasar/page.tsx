@@ -2,7 +2,7 @@
  * /tasar — Tasación de inmuebles en Buenos Aires
  */
 
-import type { Metadata } from 'next'
+import { pageMetadata } from '@/lib/seo'
 import { ContactForm } from '@/components/properties/ContactForm'
 import TasarHero from '@/components/tasar/TasarHero'
 import ValorPropuesta from '@/components/tasar/ValorPropuesta'
@@ -12,14 +12,14 @@ import DifusionTotalSection from '@/components/tasar/DifusionTotalSection'
 import { StatHighlight } from '@/components/tasar/StatHighlight'
 import SEOBarrios from '@/components/tasar/SEOBarrios'
 
-export const metadata: Metadata = {
+export const metadata = pageMetadata({
   title: 'Tasación de Propiedades en Palermo y Zona Norte CABA | Lexinton',
   description:
     'Tasación profesional en Palermo, Belgrano, Núñez, Recoleta, Saavedra y Villa Urquiza. Corredores matriculados con 20 años en zona norte.',
   keywords:
     'tasación Palermo, tasar departamento Belgrano, tasación inmuebles zona norte CABA, precio m2 Palermo 2025, tasar propiedad Buenos Aires',
-  alternates: { canonical: 'https://lexinton.com.ar/tasar' },
-}
+  path: '/tasar',
+})
 
 export default function TasarPage() {
   return (

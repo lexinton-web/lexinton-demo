@@ -3,17 +3,17 @@
  * Design system: SectionHeader
  */
 
-import type { Metadata } from 'next'
+import { pageMetadata } from '@/lib/seo'
 import { ContactForm } from '@/components/properties/ContactForm'
 import PageHero from '@/components/PageHero'
 import SectionHeader from '@/components/ui/SectionHeader'
 import AnimatedSection, { AnimatedItem } from '@/components/AnimatedSection'
 
-export const metadata: Metadata = {
+export const metadata = pageMetadata({
   title: 'Contacto | Lexinton Propiedades Palermo y Vicente López',
   description: 'Oficinas en Palermo y Vicente López. Contactanos por teléfono, email o visitanos personalmente.',
-  alternates: { canonical: 'https://lexinton.com.ar/contacto' },
-}
+  path: '/contacto',
+})
 
 const sucursales = [
   {

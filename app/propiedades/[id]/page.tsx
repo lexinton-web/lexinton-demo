@@ -5,17 +5,18 @@
  * Secciones: gallery → header → stats → description → amenities → map → contact → similares
  */
 
-import { notFound } from 'next/navigation'
+import { notFound, permanentRedirect } from 'next/navigation'
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import Image from 'next/image'
-import { getPropertyById, getSimilarProperties, getAllPropertyIds } from '@/lib/tokko/queries'
+import { getPropertyById, getSimilarProperties, getAllPropertyRefs } from '@/lib/tokko/queries'
 import {
   getCoverPhoto, getSortedPhotos, getOperationLabel, getPropertyPriceLabel,
   getNeighborhood, getPropertyTypeLabel, formatArea, formatExpenses,
-  makePropertySlug, parseSlugId, cleanDescription, getDisplayTags,
-  getCoordinates, TAG_LABELS, CONDITION_LABELS,
+  makePropertySlug, parseSlugIdSafe, cleanDescription, getDisplayTags,
+  getCoordinates, TAG_LABELS, CONDITION_LABELS, formatAddressTitle,
 } from '@/lib/tokko/utils'
+import { pageMetadata } from '@/lib/seo'
 import PropertyCard from '@/components/PropertyCard'
 import PropertyContact from '@/components/properties/PropertyContact'
 import { PropertyGallery } from '@/components/properties/PropertyGallery'
@@ -30,14 +31,14 @@ interface PageProps {
 /* ─────────────────────────── Static params ──────────────────────────── */
 
 export async function generateStaticParams() {
-  const ids = await getAllPropertyIds()
-  return ids.map((id) => ({ id: String(id) }))
+  const refs = await getAllPropertyRefs()
+  return refs.map((p) => ({ id: makePropertySlug(p.id, p.address) }))
 }
 
 /* ─────────────────────────── Metadata ───────────────────────────────── */
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const numericId = parseSlugId(params.id)
+  const numericId = parseSlugIdSafe(params.id)
   if (!numericId) return { title: 'Propiedad | Lexinton' }
 
   const property = await getPropertyById(numericId)
@@ -47,37 +48,46 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const description = cleanDescription(property.description ?? '').slice(0, 155)
   const operationLabel = getOperationLabel(property)
   const priceLabel = getPropertyPriceLabel(property)
+  const typeLabel = getPropertyTypeLabel(property) || 'Propiedad'
+  const neighborhood = getNeighborhood(property)
+  const address = formatAddressTitle(property.address)
+  const rooms = property.room_amount ? ` ${property.room_amount} amb.` : ''
 
-  const slug = makePropertySlug(property.id, property.address)
-  const canonical = `https://lexinton.com.ar/propiedades/${slug}`
+  // "Departamento 3 amb. en venta en Núñez · Nuñez 3100 · USD 179.500 | Lexinton"
+  const summary = [
+    `${typeLabel}${rooms}`,
+    operationLabel && `en ${operationLabel.toLowerCase()}`,
+    neighborhood && `en ${neighborhood}`,
+  ].filter(Boolean).join(' ')
+  const title = [summary, address, priceLabel].filter(Boolean).join(' · ') + ' | Lexinton'
+
   const metaDesc = description ||
-    `${getPropertyTypeLabel(property)} de ${property.room_amount ? property.room_amount + ' ambientes' : ''} en ${operationLabel.toLowerCase()} en ${getNeighborhood(property)}. ${priceLabel}.`.trim()
+    `${typeLabel}${property.room_amount ? ` de ${property.room_amount} ambientes` : ''} en ${operationLabel.toLowerCase()} en ${neighborhood}. ${priceLabel}.`.trim()
 
-  return {
-    title: `${property.address} · ${operationLabel} ${priceLabel} | Lexinton`,
+  return pageMetadata({
+    title,
+    socialTitle: `${summary} · ${address} — Lexinton Propiedades`,
     description: metaDesc,
-    alternates: {
-      canonical,
-    },
+    path: `/propiedades/${makePropertySlug(property.id, property.address)}`,
     robots: { index: true, follow: true },
-    openGraph: {
-      title: `${property.address} — Lexinton Propiedades`,
-      description: metaDesc,
-      url: canonical,
-      images: coverPhoto ? [{ url: coverPhoto, alt: `${getPropertyTypeLabel(property)} en ${getNeighborhood(property)} — ${property.address}` }] : [],
-      type: 'website',
-    },
-  }
+    image: coverPhoto
+      ? { url: coverPhoto, alt: `${typeLabel} en ${neighborhood} — ${address}` }
+      : undefined,
+  })
 }
 
 /* ─────────────────────────── Page ───────────────────────────────────── */
 
 export default async function PropiedadDetallePage({ params }: PageProps) {
-  const numericId = parseSlugId(params.id)
+  const numericId = parseSlugIdSafe(params.id)
   if (!numericId) notFound()
 
   const property = await getPropertyById(numericId)
   if (!property) notFound()
+
+  // Una sola URL por propiedad: /propiedades/20399 o /propiedades/20399-otra-cosa → slug canónico
+  const canonicalSlug = makePropertySlug(property.id, property.address)
+  if (params.id !== canonicalSlug) permanentRedirect(`/propiedades/${canonicalSlug}`)
 
   const photos = getSortedPhotos(property)
   const similarProperties = await getSimilarProperties(property, 3)

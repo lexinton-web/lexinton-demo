@@ -320,18 +320,19 @@ export async function getSimilarProperties(
 }
 
 /**
- * Obtiene los IDs de propiedades para generateStaticParams.
- * Trae todas las propiedades para pre-renderizar las más visitadas.
+ * Obtiene id + dirección de todas las propiedades, para generateStaticParams
+ * y el sitemap (la dirección arma el slug canónico con makePropertySlug).
  */
-export async function getAllPropertyIds(): Promise<number[]> {
+export async function getAllPropertyRefs(): Promise<{ id: number; address: string }[]> {
   const IDS_BATCH = 35
+  const toRef = (p: TokkoProperty) => ({ id: p.id, address: p.address ?? '' })
   const r1 = await tokkoFetch<TokkoPropertyListResponse>(
     'property',
     { limit: IDS_BATCH, offset: 0 },
     3600
   )
   const total = r1.meta?.total_count ?? r1.objects.length
-  let ids = r1.objects.map((p) => p.id)
+  let refs = r1.objects.map(toRef)
   if (total > IDS_BATCH) {
     const remaining = Math.ceil((total - IDS_BATCH) / IDS_BATCH)
     for (let i = 1; i <= remaining; i++) {
@@ -340,10 +341,10 @@ export async function getAllPropertyIds(): Promise<number[]> {
         { limit: IDS_BATCH, offset: IDS_BATCH * i },
         3600
       )
-      ids = [...ids, ...(batch?.objects.map((p) => p.id) ?? [])]
+      refs = [...refs, ...(batch?.objects.map(toRef) ?? [])]
     }
   }
-  return ids
+  return refs
 }
 
 // ─── Tipos de propiedad ───────────────────────────────────────────────────────

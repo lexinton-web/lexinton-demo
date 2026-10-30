@@ -3,6 +3,7 @@
 import { useRef } from 'react'
 import Link from 'next/link'
 import type { TokkoDevelopment } from '@/lib/tokko/types'
+import { makeDevelopmentSlug } from '@/lib/tokko/utils'
 
 interface Props {
   developments: TokkoDevelopment[]
@@ -53,7 +54,7 @@ function DevelopmentCard({ dev }: { dev: TokkoDevelopment }) {
 
   return (
     <Link
-      href={`/emprendimientos/${dev.id}`}
+      href={`/emprendimientos/${makeDevelopmentSlug(dev)}`}
       className="snap-start shrink-0 w-[300px] sm:w-[360px] bg-white rounded-2xl overflow-hidden group border border-lx-line hover:shadow-lg transition-shadow duration-300"
     >
       {/* Image */}

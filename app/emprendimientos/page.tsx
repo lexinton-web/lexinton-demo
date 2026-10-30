@@ -2,7 +2,7 @@
  * /emprendimientos — Proyectos inmobiliarios seleccionados por Lexinton
  */
 
-import type { Metadata } from 'next'
+import { pageMetadata } from '@/lib/seo'
 import { Suspense } from 'react'
 import Link from 'next/link'
 import { getDevelopments } from '@/lib/tokko/queries'
@@ -13,11 +13,11 @@ import SectionHeader from '@/components/ui/SectionHeader'
 import FeatureCard from '@/components/ui/FeatureCard'
 import { EmprendimientosClient } from '@/components/emprendimientos/EmprendimientosClient'
 
-export const metadata: Metadata = {
+export const metadata = pageMetadata({
   title: 'Emprendimientos Inmobiliarios en Palermo | Lexinton Propiedades',
   description: 'Invertí en los mejores emprendimientos inmobiliarios de Palermo y zona norte.',
-  alternates: { canonical: 'https://lexinton.com.ar/emprendimientos' },
-}
+  path: '/emprendimientos',
+})
 
 const diferenciadores = [
   { title: 'Menor precio de entrada', description: 'Comprar en pozo o en construcción siempre es más económico que a estrenar. Accedés al precio más bajo del ciclo del proyecto.', icon: '◈' },

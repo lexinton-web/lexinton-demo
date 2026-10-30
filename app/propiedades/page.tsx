@@ -17,6 +17,7 @@ import PropertySearch from '@/components/properties/PropertySearch'
 import { PropertyListingClient } from '@/components/properties/PropertyListingClient'
 import { getProperties } from '@/lib/tokko/queries'
 import type { PropertyFilters } from '@/lib/tokko/types'
+import { pageMetadata } from '@/lib/seo'
 
 // ─── Metadata ────────────────────────────────────────────────────────────────
 
@@ -30,16 +31,16 @@ export async function generateMetadata({ searchParams }: PageProps): Promise<Met
     searchParams.operation === 'Rent' ? 'en Alquiler' :
     'en Venta y Alquiler'
 
-  return {
+  return pageMetadata({
     title: `Propiedades ${opLabel} | Lexinton Propiedades`,
     description:
       'Encontrá tu próxima propiedad en Lexinton. Departamentos, casas, PHs y locales ' +
       'en Palermo, Belgrano, Villa Urquiza, Coghlan y toda Capital Federal.',
-    alternates: { canonical: 'https://lexinton.com.ar/propiedades' },
+    path: '/propiedades',
     robots: hasFilters
       ? { index: false, follow: true }
       : { index: true, follow: true },
-  }
+  })
 }
 
 // ─── Tipos ────────────────────────────────────────────────────────────────────
